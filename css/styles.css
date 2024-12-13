@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
     background-color: white;
     padding: 20px;
@@ -27,101 +27,55 @@ h1 {
     margin-bottom: 20px;
 }
 
-/* 投稿のカードデザイン */
-.post {
+/* フォームのラベルと入力 */
+.form {
     margin-bottom: 20px;
-    padding: 15px;
-    background-color: #fafafa;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    overflow: hidden; /* カード内でのオーバーフローを防ぐ */
-    word-wrap: break-word; /* 単語の途中で折り返し */
 }
 
-/* 投稿タイトル (username) */
-.post h2 {
-    font-size: 18px;
-    color: #2c3e50;
-    margin-bottom: 10px;
-    white-space: nowrap;  /* 改行しない */
-    overflow: hidden;     /* 幅を超える部分を隠す */
-    text-overflow: ellipsis;  /* 省略記号(...)を表示 */
-    max-width: 100%;  /* 横幅100%に設定 */
-    display: block;   /* ブロック要素 */
-    margin-bottom: 10px; /* 下部に余白 */
-}
-
-/* 投稿の内容 (content) */
-.post p {
+label {
+    display: block;
     font-size: 16px;
-    color: #34495e;
-    margin-bottom: 10px;
-    white-space: normal; /* 改行を許可 */
-    overflow: hidden;
-    text-overflow: ellipsis; /* 長いテキストを省略表示 */
-    display: -webkit-box;
-    -webkit-line-clamp: 3; /* 最大3行に制限 */
-    -webkit-box-orient: vertical;
-    line-height: 1.5;
+    color: #333;
+    margin-bottom: 8px;
 }
 
-/* 絵文字 */
-.emoji {
-    font-size: 20px;
-    display: inline-block;
-    vertical-align: middle;
-}
-
-/* 画像 */
-.post-image {
-    max-width: 100%;
-    height: auto;
-    margin-top: 10px;
-    border-radius: 8px;
-}
-
-/* 新しい投稿フォーム */
-textarea {
+input {
     width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 6px;
     border: 1px solid #ddd;
-    margin-bottom: 10px;
-    resize: vertical;
+    margin-bottom: 20px;
+    background-color: #fafafa;
 }
 
-input[type="file"] {
-    margin-top: 10px;
-    border: none;
-    padding: 8px;
+input:focus {
+    outline: none;
+    border-color: #3498db;
+    background-color: #fff;
 }
 
+/* ボタンのスタイル */
 .button {
     display: inline-block;
     background-color: #1f80e3;
     color: white;
-    padding: 10px 20px;
+    padding: 12px 20px;
     text-decoration: none;
-    border-radius: 4px;
-    margin-top: 10px;
+    border-radius: 6px;
     text-align: center;
     font-size: 16px;
+    width: 100%;
 }
 
 .button:hover {
     background-color: #1781c4;
 }
 
-.link {
-    display: inline-block;
-    text-decoration: none;
-    color: #3498db;
-    margin-top: 10px;
-}
-
-.link:hover {
-    text-decoration: underline;
+p {
+    text-align: center;
+    font-size: 14px;
+    color: #555;
 }
 
 /* レスポンシブ対応 */
@@ -134,19 +88,9 @@ input[type="file"] {
         font-size: 20px;
     }
 
-    .post h2 {
-        font-size: 16px;
-    }
-
-    .post p {
+    input, .button {
         font-size: 14px;
-    }
-
-    textarea {
-        font-size: 12px;
-    }
-
-    .button {
-        font-size: 14px;
+        padding: 10px;
     }
 }
+
