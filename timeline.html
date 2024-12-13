@@ -48,18 +48,20 @@
             xhr.open("GET", API_URL, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
 
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        displayPosts(data);
-                    } catch (e) {
-                        console.error("JSON解析エラー:", e);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {  // 完了状態
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            displayPosts(data);
+                        } catch (e) {
+                            console.error("JSONの解析エラー:", e);
+                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                        }
+                    } else {
+                        console.error('ネットワークエラー:', xhr.status, xhr.statusText);
                         document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                     }
-                } else {
-                    console.error('ネットワークエラー:', xhr.status);
-                    document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                 }
             };
 
@@ -75,13 +77,13 @@
         function displayPosts(posts) {
             const postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
-            const fragment = document.createDocumentFragment();  // 仮のDOMを作成
             posts.forEach(post => {
                 const postElement = document.createElement('div');
                 postElement.classList.add('post');
                 const username = post.account.acct;
                 const content = post.content;
 
+                // 画像がある場合、その画像を表示
                 let images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(attachment => {
@@ -89,6 +91,7 @@
                     }).join('');
                 }
 
+                // 絵文字も表示
                 const emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, (match, emoji) => {
                     return `<span class="emoji">${emoji}</span>`;
                 });
@@ -98,9 +101,8 @@
                     <p>${emojiContent}</p>
                     ${images}
                 `;
-                fragment.appendChild(postElement);  // 仮DOMに追加
+                postsContainer.appendChild(postElement);
             });
-            postsContainer.appendChild(fragment);  // 一度に更新
         }
 
         // ページ読み込み時に投稿を取得

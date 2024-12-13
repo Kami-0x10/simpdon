@@ -11,7 +11,8 @@
         <h1>新しい投稿</h1>
         <div class="form">
             <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
-            <button id="post-btn" class="button">投稿</button>
+            <!-- <button>から<a>に変更 -->
+            <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
     </div>
 
@@ -55,14 +56,16 @@
 
             var data = JSON.stringify({ status: content });
 
-            // レスポンスの処理
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    alert('投稿が成功しました');
-                    window.location.href = 'timeline.html'; // タイムラインページにリダイレクト
-                } else {
-                    console.error('投稿エラー:', xhr.status, xhr.responseText);
-                    alert('投稿の送信に失敗しました');
+            // XMLHttpRequestのレスポンスを処理
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {  // 完了した場合
+                    if (xhr.status === 200) {
+                        alert('投稿が成功しました');
+                        window.location.href = 'timeline.html'; // タイムラインページにリダイレクト
+                    } else {
+                        console.error('投稿エラー:', xhr.status, xhr.responseText);
+                        alert('投稿の送信に失敗しました');
+                    }
                 }
             };
 
