@@ -36,15 +36,17 @@
                 return;
             }
 
+            // CookieからインスタンスURLとアクセストークンを取得
             const instanceUrl = getCookie('instanceUrl');
             const accessToken = getCookie('accessToken');
 
             if (!instanceUrl || !accessToken) {
                 alert('ログイン情報が見つかりません');
-                window.location.href = 'login.html';
+                window.location.href = 'login.html'; // ログインページにリダイレクト
                 return;
             }
 
+            // 投稿するためのリクエストを作成
             var xhr = new XMLHttpRequest();
             var API_URL = instanceUrl + "/api/v1/statuses";
             xhr.open("POST", API_URL, true);
@@ -53,21 +55,24 @@
 
             var data = JSON.stringify({ status: content });
 
+            // レスポンスの処理
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     alert('投稿が成功しました');
-                    window.location.href = 'timeline.html'; // 投稿後、タイムラインページに遷移
+                    window.location.href = 'timeline.html'; // タイムラインページにリダイレクト
                 } else {
-                    console.error('ネットワークエラー:', xhr.status);
+                    console.error('投稿エラー:', xhr.status, xhr.responseText);
                     alert('投稿の送信に失敗しました');
                 }
             };
 
+            // エラーハンドリング
             xhr.onerror = function() {
                 console.error('リクエストエラーが発生しました');
                 alert('エラーが発生しました');
             };
 
+            // リクエストの送信
             xhr.send(data);
         };
     </script>
