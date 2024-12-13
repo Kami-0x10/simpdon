@@ -42,6 +42,7 @@
             xhr.open("GET", API_URL, true);
             xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
             xhr.onload = function() {
+                console.log('xhr response', xhr.responseText); // デバッグ用
                 if (xhr.status === 200) {
                     const data = JSON.parse(xhr.responseText);
                     displayPosts(data);
@@ -97,3 +98,4 @@
     </script>
 </body>
 </html>
+
