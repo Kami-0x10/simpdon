@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン - Simpdon クライアント</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ログイン</h1>
+        <div class="form">
+            <label for="instance-url">インスタンスURL</label>
+            <input type="text" id="instance-url" placeholder="例: https://mastodon.social" />
+
+            <label for="access-token">アクセストークン</label>
+            <input type="text" id="access-token" placeholder="アクセストークンを入力" />
+
+            <button id="login-btn">ログイン</button>
+        </div>
+        <p>ログイン後、投稿一覧ページに遷移します。</p>
+    </div>
+
+    <script>
+        // ログインボタンのクリックイベント
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const instanceUrl = document.getElementById('instance-url').value.trim();
+            const accessToken = document.getElementById('access-token').value.trim();
+            if (instanceUrl && accessToken) {
+                // インスタンスURLとアクセストークンをローカルストレージに保存
+                localStorage.setItem('instanceUrl', instanceUrl);
+                localStorage.setItem('accessToken', accessToken);
+                window.location.href = 'timeline.html'; // 投稿一覧ページに遷移
+            } else {
+                alert('インスタンスURLとアクセストークンを入力してください');
+            }
+        });
+    </script>
+</body>
+</html>
