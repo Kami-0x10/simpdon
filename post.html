@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
+
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
         <div class="form">
-            <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
-            <!-- <button>から<a>に変更 -->
-            <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
+        <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
+        <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
     </div>
-
     <script>
         // CookieからインスタンスURLとアクセストークンを取得する関数
         function getCookie(name) {
@@ -29,7 +29,7 @@
         }
 
         // 投稿ボタンのクリックイベント
-        document.getElementById('post-btn').onclick = function() {
+        document.getElementById('post-btn').onclick = function () {
             const content = document.getElementById('content').value.trim();
 
             if (!content) {
@@ -57,8 +57,8 @@
             var data = JSON.stringify({ status: content });
 
             // XMLHttpRequestのレスポンスを処理
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {  // 完了した場合
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         alert('投稿が成功しました');
                         window.location.href = 'timeline.html'; // タイムラインページにリダイレクト
@@ -70,7 +70,7 @@
             };
 
             // エラーハンドリング
-            xhr.onerror = function() {
+            xhr.onerror = function () {
                 console.error('リクエストエラーが発生しました');
                 alert('エラーが発生しました');
             };
