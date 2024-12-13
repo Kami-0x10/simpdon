@@ -16,28 +16,28 @@
             <label for="access-token">アクセストークン</label>
             <input type="text" id="access-token" placeholder="アクセストークンを入力" />
 
-            <!-- <a>タグを使用してログインボタンの代替 -->
             <a href="javascript:void(0);" id="login-btn" class="button">ログイン</a>
         </div>
         <p>ログイン後、投稿一覧ページに遷移します。</p>
     </div>
 
     <script>
-        // ログインボタンのクリックイベント
-        document.getElementById('login-btn').addEventListener('click', () => {
-            const instanceUrl = document.getElementById('instance-url').value.trim();
-            const accessToken = document.getElementById('access-token').value.trim();
-            if (instanceUrl && accessToken) {
-                // インスタンスURLとアクセストークンをローカルストレージに保存
-                localStorage.setItem('instanceUrl', instanceUrl);
-                localStorage.setItem('accessToken', accessToken);
-                window.location.href = 'timeline.html'; // 投稿一覧ページに遷移
-            } else {
-                alert('インスタンスURLとアクセストークンを入力してください');
-            }
+        // DOMが完全に読み込まれた時に実行
+        document.addEventListener("DOMContentLoaded", function() {
+            // ログインボタンのクリックイベント
+            document.getElementById('login-btn').onclick = function() {
+                const instanceUrl = document.getElementById('instance-url').value.trim();
+                const accessToken = document.getElementById('access-token').value.trim();
+                if (instanceUrl && accessToken) {
+                    // インスタンスURLとアクセストークンをローカルストレージに保存
+                    localStorage.setItem('instanceUrl', instanceUrl);
+                    localStorage.setItem('accessToken', accessToken);
+                    window.location.href = 'timeline.html'; // 投稿一覧ページに遷移
+                } else {
+                    alert('インスタンスURLとアクセストークンを入力してください');
+                }
+            };
         });
     </script>
 </body>
 </html>
-
-

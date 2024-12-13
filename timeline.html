@@ -23,70 +23,72 @@
     </div>
 
     <script>
-        // ログイン確認
-        const instanceUrl = localStorage.getItem('instanceUrl');
-        const accessToken = localStorage.getItem('accessToken');
-        if (!instanceUrl || !accessToken) {
-            window.location.href = 'login.html'; // ログインしていなければログインページに遷移
-        }
-
-        // Mastodon APIのURL（インスタンスURLを動的に設定）
-        const API_URL = `${instanceUrl}/api/v1/timelines/public`;
-
-        // 投稿を取得して表示
-        async function fetchPosts() {
-            try {
-                const response = await fetch(API_URL, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error('ネットワークエラーが発生しました');
-                }
-                const data = await response.json();
-                displayPosts(data);
-            } catch (error) {
-                console.error('エラー:', error);
-                document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+        // DOMが完全に読み込まれた時に実行
+        document.addEventListener("DOMContentLoaded", function() {
+            // ログイン確認
+            const instanceUrl = localStorage.getItem('instanceUrl');
+            const accessToken = localStorage.getItem('accessToken');
+            if (!instanceUrl || !accessToken) {
+                window.location.href = 'login.html'; // ログインしていなければログインページに遷移
             }
-        }
 
-        // 投稿を表示
-        function displayPosts(posts) {
-            const postsContainer = document.getElementById('posts');
-            postsContainer.innerHTML = ''; // 既存の投稿をクリア
-            posts.forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.classList.add('post');
-                const username = post.account.acct;
-                const content = post.content;
+            // Mastodon APIのURL（インスタンスURLを動的に設定）
+            const API_URL = `${instanceUrl}/api/v1/timelines/public`;
 
-                // 画像がある場合、その画像を表示
-                let images = '';
-                if (post.media_attachments && post.media_attachments.length > 0) {
-                    images = post.media_attachments.map(attachment => {
-                        return `<img src="${attachment.url}" alt="画像" class="post-image" />`;
-                    }).join('');
+            // 投稿を取得して表示
+            async function fetchPosts() {
+                try {
+                    const response = await fetch(API_URL, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+                    if (!response.ok) {
+                        throw new Error('ネットワークエラーが発生しました');
+                    }
+                    const data = await response.json();
+                    displayPosts(data);
+                } catch (error) {
+                    console.error('エラー:', error);
+                    document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                 }
+            }
 
-                // 絵文字も表示
-                const emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, (match, emoji) => {
-                    return `<span class="emoji">${emoji}</span>`;
+            // 投稿を表示
+            function displayPosts(posts) {
+                const postsContainer = document.getElementById('posts');
+                postsContainer.innerHTML = ''; // 既存の投稿をクリア
+                posts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.classList.add('post');
+                    const username = post.account.acct;
+                    const content = post.content;
+
+                    // 画像がある場合、その画像を表示
+                    let images = '';
+                    if (post.media_attachments && post.media_attachments.length > 0) {
+                        images = post.media_attachments.map(attachment => {
+                            return `<img src="${attachment.url}" alt="画像" class="post-image" />`;
+                        }).join('');
+                    }
+
+                    // 絵文字も表示
+                    const emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, (match, emoji) => {
+                        return `<span class="emoji">${emoji}</span>`;
+                    });
+
+                    postElement.innerHTML = `
+                        <h2>@${username}</h2>
+                        <p>${emojiContent}</p>
+                        ${images}
+                    `;
+                    postsContainer.appendChild(postElement);
                 });
+            }
 
-                postElement.innerHTML = `
-                    <h2>@${username}</h2>
-                    <p>${emojiContent}</p>
-                    ${images}
-                `;
-                postsContainer.appendChild(postElement);
-            });
-        }
-
-        // ページ読み込み時に投稿を取得
-        window.onload = fetchPosts;
+            // ページ読み込み時に投稿を取得
+            fetchPosts();
+        });
     </script>
 </body>
 </html>
-
