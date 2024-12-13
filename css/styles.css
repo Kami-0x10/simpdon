@@ -4,6 +4,7 @@
     margin: 0;
     padding: 0;
 }
+
 body {
     font-family: 'Helvetica Neue', sans-serif;
     background-color: #f4f7fa;
@@ -28,34 +29,23 @@ h1 {
 }
 
 /* フォームのラベルと入力 */
-.form {
+.post-form {
     margin-bottom: 20px;
 }
 
-label {
-    display: block;
-    font-size: 16px;
-    color: #333;
-    margin-bottom: 8px;
-}
-
-input {
+textarea {
     width: 100%;
     padding: 12px;
     font-size: 16px;
     border-radius: 6px;
     border: 1px solid #ddd;
-    margin-bottom: 20px;
     background-color: #fafafa;
 }
 
-input:focus {
-    outline: none;
-    border-color: #3498db;
-    background-color: #fff;
+input[type="file"] {
+    margin-top: 10px;
 }
 
-/* ボタンのスタイル */
 .button {
     display: inline-block;
     background-color: #1f80e3;
@@ -66,31 +56,44 @@ input:focus {
     text-align: center;
     font-size: 16px;
     width: 100%;
+    cursor: pointer;
+    text-transform: uppercase;
 }
 
 .button:hover {
     background-color: #1781c4;
 }
 
-p {
+.link {
+    display: inline-block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: #3498db;
     text-align: center;
-    font-size: 14px;
-    color: #555;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 480px) {
-    .container {
-        padding: 15px;
-    }
-
-    h1 {
-        font-size: 20px;
-    }
-
-    input, .button {
-        font-size: 14px;
-        padding: 10px;
-    }
+.actions {
+    margin-top: 20px;
+    text-align: center;
 }
 
+/* 投稿カード */
+.post {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    background-color: #fafafa;
+}
+
+.post img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+}
+
+.emoji {
+    font-size: 24px;
+    margin: 0 3px;
+}
