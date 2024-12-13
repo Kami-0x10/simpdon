@@ -14,30 +14,29 @@
         <h1>新しい投稿</h1>
         <div class="form">
             <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
-            <input type="file" id="image-upload" accept="image/*">
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
     </div>
 
+    <!-- iframeを追加 -->
+    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
+
     <script>
-        // CookieからインスタンスURLとアクセストークンを取得する関数
         function getCookie(name) {
             var nameEq = name + "=";
             var ca = document.cookie.split(';');
             for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].replace(/^\s+/, ''); // trim()の代替
+                var c = ca[i].replace(/^\s+/, '');
                 if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
             }
             return "";
         }
 
-        // 投稿ボタンのクリックイベント
         document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, ''); // trim()の代替
-            var imageFile = document.getElementById('image-upload').files[0];
+            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
 
-            if (!content && !imageFile) {
-                alert('投稿内容または画像を入力してください');
+            if (!content) {
+                alert('投稿内容を入力してください');
                 return;
             }
 
@@ -50,33 +49,36 @@
                 return;
             }
 
-            // 画像をアップロード
-            var formData = new FormData();
-            formData.append('status', content);
-            if (imageFile) {
-                formData.append('file', imageFile);
-            }
+            // フォームを動的に作成
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = instanceUrl + '/api/v1/statuses';
+            form.target = 'hidden-frame';
+            form.style.display = 'none';
 
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", instanceUrl + "/api/v1/statuses", true);
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+            // アクセストークンをヘッダーとして送信するためのhidden input
+            var authInput = document.createElement('input');
+            authInput.type = 'hidden';
+            authInput.name = 'Authorization';
+            authInput.value = 'Bearer ' + accessToken;
+            form.appendChild(authInput);
 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        alert('投稿が成功しました');
-                        window.location.href = 'timeline.html';
-                    } else {
-                        alert('投稿の送信に失敗しました');
-                    }
-                }
-            };
+            // 投稿内容を追加
+            var contentInput = document.createElement('input');
+            contentInput.type = 'hidden';
+            contentInput.name = 'status';
+            contentInput.value = content;
+            form.appendChild(contentInput);
 
-            xhr.onerror = function () {
-                alert('エラーが発生しました');
-            };
+            document.body.appendChild(form);
 
-            xhr.send(formData);
+            // フォームを送信
+            form.submit();
+
+            // 送信後フォームを削除
+            form.remove();
+
+            alert('投稿が送信されました');
         };
     </script>
 </body>
