@@ -19,22 +19,19 @@
     </div>
 
     <script>
-        // ログイン確認
         const instanceUrl = localStorage.getItem('instanceUrl');
         const accessToken = localStorage.getItem('accessToken');
         if (!instanceUrl || !accessToken) {
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿ボタンのクリックイベント
         document.getElementById('submit-post').addEventListener('click', function () {
             const content = document.getElementById('new-post').value.trim();
-            const imageFile = document.getElementById('image-upload').files[0]; // アップロードされた画像ファイル
+            const imageFile = document.getElementById('image-upload').files[0];
 
             if (content || imageFile) {
                 let mediaId = null;
 
-                // 画像が選択されている場合、アップロードしてメディアIDを取得
                 if (imageFile) {
                     const formData = new FormData();
                     formData.append('file', imageFile);
@@ -42,28 +39,22 @@
                     const mediaRequest = new XMLHttpRequest();
                     mediaRequest.open('POST', instanceUrl + '/api/v1/media', true);
                     mediaRequest.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-                    
-                    // 画像アップロードの成功時の処理
                     mediaRequest.onload = function () {
                         if (mediaRequest.status === 200) {
                             const mediaData = JSON.parse(mediaRequest.responseText);
                             mediaId = mediaData.id;
-
-                            // 投稿処理を実行
                             sendPost(content, mediaId);
                         } else {
                             alert('画像のアップロードに失敗しました');
                         }
                     };
 
-                    // 画像アップロードのエラー処理
                     mediaRequest.onerror = function () {
                         alert('画像のアップロードに失敗しました');
                     };
 
                     mediaRequest.send(formData);
                 } else {
-                    // 画像がない場合、そのまま投稿処理
                     sendPost(content, mediaId);
                 }
             } else {
@@ -71,11 +62,10 @@
             }
         });
 
-        // 投稿を送信する関数
         function sendPost(content, mediaId) {
             const postData = {
                 status: content,
-                media_ids: mediaId ? [mediaId] : [] // メディアIDがあれば、投稿に添付
+                media_ids: mediaId ? [mediaId] : []
             };
 
             const postRequest = new XMLHttpRequest();
@@ -83,18 +73,16 @@
             postRequest.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             postRequest.setRequestHeader('Content-Type', 'application/json');
 
-            // 投稿成功時
             postRequest.onload = function () {
                 if (postRequest.status === 200) {
                     alert('投稿が成功しました');
-                    window.location.href = 'timeline.html'; // 投稿成功後に投稿一覧に遷移
+                    window.location.href = 'timeline.html';
                 } else {
                     const errorData = JSON.parse(postRequest.responseText);
                     alert('投稿に失敗しました: ' + errorData.error);
                 }
             };
 
-            // 投稿エラー処理
             postRequest.onerror = function () {
                 alert('投稿に失敗しました');
             };

@@ -22,17 +22,14 @@
     </div>
 
     <script>
-        // DOMが完全に読み込まれた時に実行
         document.addEventListener("DOMContentLoaded", function() {
-            // ログインボタンのクリックイベント
             document.getElementById('login-btn').onclick = function() {
                 const instanceUrl = document.getElementById('instance-url').value.trim();
                 const accessToken = document.getElementById('access-token').value.trim();
                 if (instanceUrl && accessToken) {
-                    // インスタンスURLとアクセストークンをローカルストレージに保存
                     localStorage.setItem('instanceUrl', instanceUrl);
                     localStorage.setItem('accessToken', accessToken);
-                    window.location.href = 'timeline.html'; // 投稿一覧ページに遷移
+                    window.location.href = 'timeline.html';
                 } else {
                     alert('インスタンスURLとアクセストークンを入力してください');
                 }

@@ -4,18 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投稿一覧 - Simpdon クライアント</title>
-    <link rel="stylesheet" href="./css/styles.css"> 
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
-<body> 
+<body>
     <div class="container">
         <h1>投稿一覧</h1>
-        
-        <!-- 投稿表示部分 -->
-        <div id="posts" class="posts">
-            <!-- 投稿がここに表示されます -->
-        </div>
-
-        <!-- 新しい投稿ボタンとログアウトリンク -->
+        <div id="posts" class="posts"></div>
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -23,36 +17,31 @@
     </div>
 
     <script>
-        // ログイン確認
         const instanceUrl = localStorage.getItem('instanceUrl');
         const accessToken = localStorage.getItem('accessToken');
         if (!instanceUrl || !accessToken) {
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿を取得するためのXMLHttpRequest
         function fetchPosts() {
             const xhr = new XMLHttpRequest();
             const API_URL = `${instanceUrl}/api/v1/timelines/public`;
             xhr.open("GET", API_URL, true);
             xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
-            xhr.onload = function() {
+            xhr.onload = function () {
                 if (xhr.status === 200) {
                     const data = JSON.parse(xhr.responseText);
                     displayPosts(data);
                 } else {
-                    console.error('ネットワークエラーが発生しました');
                     document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                 }
             };
-            xhr.onerror = function() {
-                console.error('エラー:', xhr.statusText);
+            xhr.onerror = function () {
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
             };
             xhr.send();
         }
 
-        // 投稿を表示
         function displayPosts(posts) {
             const postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
@@ -61,8 +50,6 @@
                 postElement.classList.add('post');
                 const username = post.account.acct;
                 const content = post.content;
-
-                // 画像がある場合、その画像を表示
                 let images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(attachment => {
@@ -70,7 +57,6 @@
                     }).join('');
                 }
 
-                // 絵文字も表示
                 const emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, (match, emoji) => {
                     return `<span class="emoji">${emoji}</span>`;
                 });
@@ -84,7 +70,6 @@
             });
         }
 
-        // ページ読み込み時に投稿を取得
         window.onload = fetchPosts;
     </script>
 </body>
