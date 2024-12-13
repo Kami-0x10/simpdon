@@ -58,11 +58,13 @@
                     alert('投稿が成功しました');
                     window.location.href = 'timeline.html'; // 投稿後、タイムラインページに遷移
                 } else {
+                    console.error('ネットワークエラー:', xhr.status);
                     alert('投稿の送信に失敗しました');
                 }
             };
 
             xhr.onerror = function() {
+                console.error('リクエストエラーが発生しました');
                 alert('エラーが発生しました');
             };
 
