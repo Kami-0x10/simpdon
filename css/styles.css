@@ -21,6 +21,7 @@ body {
     max-width: 400px;
     text-align: center;
     box-sizing: border-box;
+    margin: 0 15px;  /* スマホ画面での余白調整 */
 }
 
 /* 見出し */
@@ -42,6 +43,7 @@ label {
     font-size: 14px;
     text-align: left;
     color: #555;
+    margin-bottom: 5px;
 }
 
 /* 入力フィールド */
@@ -52,6 +54,7 @@ input[type="text"] {
     border-radius: 5px;
     margin-top: 5px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 /* ボタン */
@@ -64,9 +67,10 @@ input[type="text"] {
     text-decoration: none;
     display: inline-block;
     text-align: center;
-    width: 100%; /* これでボタンの幅を100%に設定 */
+    width: 100%; /* ボタンの幅を100%に設定 */
     box-sizing: border-box;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 .button:hover {
@@ -94,6 +98,7 @@ a:hover {
 @media (max-width: 480px) {
     .container {
         padding: 15px;
+        margin: 0 10px;  /* 画面幅に合わせた余白 */
     }
     h1 {
         font-size: 20px;
@@ -121,4 +126,3 @@ a:hover {
     word-wrap: break-word; /* 長い単語が改行されるように */
     overflow: hidden;  /* 画像などがカード外に出ないように */
 }
-

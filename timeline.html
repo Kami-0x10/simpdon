@@ -10,12 +10,10 @@
     <div class="container">
         <h1>投稿一覧</h1>
 
-        <!-- 投稿表示部分 -->
         <div id="posts" class="posts">
             <!-- 投稿がここに表示されます -->
         </div>
 
-        <!-- 新しい投稿ボタンとログアウトリンク -->
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -76,7 +74,6 @@
                 const username = post.account.acct;
                 const content = post.content;
 
-                // 画像がある場合、その画像を表示
                 let images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(attachment => {
@@ -84,7 +81,6 @@
                     }).join('');
                 }
 
-                // 絵文字も表示
                 const emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, (match, emoji) => {
                     return `<span class="emoji">${emoji}</span>`;
                 });

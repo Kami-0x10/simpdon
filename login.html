@@ -11,12 +11,12 @@
         <h1>ログイン</h1>
         <div class="form">
             <label for="instance-url">インスタンスURL</label>
-            <input type="text" id="instance-url" placeholder="例: https://mastodon.social" /> 
+            <input type="text" id="instance-url" placeholder="例: https://mastodon.social" />  
 
-            <label for="access-token">アクセストークン</label>
-            <input type="text" id="access-token" placeholder="アクセストークンを入力" /> 
+            <label for="access-token">アクセストークン</label> 
+            <input type="text" id="access-token" placeholder="アクセストークンを入力" />  
 
-            <a href="javascript:void(0);" id="login-btn" class="button">ログイン</a>
+            <a href="javascript:void(0);" id="login-btn" class="button">ログイン</a> 
         </div>
     </div>
 
@@ -24,24 +24,24 @@
         // CookieにインスタンスURLとアクセストークンを保存する関数
         function setCookie(name, value) {
             var expires = new Date();
-            expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1年後に有効
-            document.cookie = name + "=" + value + ";expires=" + expires.toUTCString() + ";path=/";
+            expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1年後に有効 
+            document.cookie = name + "=" + value + ";expires=" + expires.toUTCString() + ";path=/"; 
         }
 
         // ログインボタンのクリックイベント
         document.getElementById('login-btn').onclick = function() {
-            const instanceUrl = document.getElementById('instance-url').value.trim();
-            const accessToken = document.getElementById('access-token').value.trim();
+            const instanceUrl = document.getElementById('instance-url').value.trim(); 
+            const accessToken = document.getElementById('access-token').value.trim(); 
 
-            if (instanceUrl && accessToken) {
-                // インスタンスURLとアクセストークンをcookieに保存
-                setCookie('instanceUrl', instanceUrl);
-                setCookie('accessToken', accessToken);
+            if (instanceUrl && accessToken) { 
+                // インスタンスURLとアクセストークンをcookieに保存 
+                setCookie('instanceUrl', instanceUrl); 
+                setCookie('accessToken', accessToken); 
                 window.location.href = 'timeline.html'; // 投稿一覧ページに遷移
-            } else {
-                alert('インスタンスURLとアクセストークンを入力してください');
-            }
-        };
-    </script>
+            } else { 
+                alert('インスタンスURLとアクセストークンを入力してください'); 
+            } 
+        }; 
+    </script> 
 </body>
 </html>
