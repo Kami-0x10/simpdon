@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新しい投稿 - Simpdon クライアント</title>
+    <title>新しい投稿</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
-        <div class="post-form">
-            <textarea id="new-post" placeholder="ここにトゥートを入力..." rows="4"></textarea>
-            <input type="file" id="image-upload" accept="image/*" />
-            <button id="submit-post" class="button">トゥートする</button>
+        <form id="postForm">
+            <label for="content">内容</label>
+            <textarea id="content" name="content" required placeholder="投稿内容を入力してください..." rows="4"></textarea>
+            <button type="submit" class="button">投稿する</button>
+        </form>
+        <div id="errorMessage" style="color: red; display: none;">投稿に失敗しました。もう一度試してください。</div>
+        <div id="successMessage" style="color: green; display: none;">投稿が成功しました！</div>
+        <div class="actions">
+            <a href="timeline.html" class="button">タイムラインに戻る</a>
         </div>
-        <a href="timeline.html" class="link">投稿一覧に戻る</a>
-        <a href="login.html" class="link">ログアウト</a>
     </div>
 
     <script>
@@ -30,80 +33,57 @@
             return "";
         }
 
-        // ログイン確認
+        // ログイン状態を確認
         const instanceUrl = getCookie('instanceUrl');
         const accessToken = getCookie('accessToken');
         if (!instanceUrl || !accessToken) {
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿ボタンのクリックイベント
-        document.getElementById('submit-post').addEventListener('click', function () {
-            const content = document.getElementById('new-post').value.trim();
-            const imageFile = document.getElementById('image-upload').files[0]; // アップロードされた画像ファイル
+        // 投稿フォームの送信処理
+        document.getElementById('postForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // デフォルトのフォーム送信を防ぐ
 
-            if (content || imageFile) {
-                let mediaId = null;
-
-                // 画像が選択されている場合、アップロードしてメディアIDを取得
-                if (imageFile) {
-                    const formData = new FormData();
-                    formData.append('file', imageFile);
-
-                    const mediaRequest = new XMLHttpRequest();
-                    mediaRequest.open('POST', instanceUrl + '/api/v1/media', true);
-                    mediaRequest.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-                    
-                    mediaRequest.onload = function () {
-                        if (mediaRequest.status === 200) {
-                            const mediaData = JSON.parse(mediaRequest.responseText);
-                            mediaId = mediaData.id;
-                            sendPost(content, mediaId);
-                        } else {
-                            alert('画像のアップロードに失敗しました');
-                        }
-                    };
-
-                    mediaRequest.onerror = function () {
-                        alert('画像のアップロードに失敗しました');
-                    };
-
-                    mediaRequest.send(formData);
-                } else {
-                    sendPost(content, mediaId);
-                }
-            } else {
-                alert('投稿内容を入力してください');
+            const content = document.getElementById('content').value.trim();
+            if (content === "") {
+                alert("投稿内容を入力してください！");
+                return;
             }
-        });
 
-        function sendPost(content, mediaId) {
-            const postData = {
-                status: content,
-                media_ids: mediaId ? [mediaId] : []
-            };
+            // 投稿をサーバーに送信
+            const xhr = new XMLHttpRequest();
+            const API_URL = `${instanceUrl}/api/v1/statuses`; // 投稿APIのエンドポイント
+            xhr.open("POST", API_URL, true);
+            xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
+            xhr.setRequestHeader("Content-Type", "application/json");
 
-            const postRequest = new XMLHttpRequest();
-            postRequest.open('POST', instanceUrl + '/api/v1/statuses', true);
-            postRequest.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-            postRequest.setRequestHeader('Content-Type', 'application/json');
+            // 送信するデータ
+            const data = JSON.stringify({
+                status: content
+            });
 
-            postRequest.onload = function () {
-                if (postRequest.status === 200) {
-                    alert('投稿が成功しました');
-                    window.location.href = 'timeline.html';
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // 投稿成功時の処理
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    document.getElementById('content').value = ''; // フォームをクリア
                 } else {
-                    const errorData = JSON.parse(postRequest.responseText);
-                    alert('投稿に失敗しました: ' + errorData.error);
+                    // 投稿失敗時の処理
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('successMessage').style.display = 'none';
+                    console.error('Error posting content:', xhr.status, xhr.responseText);
                 }
             };
 
-            postRequest.onerror = function () {
-                alert('投稿に失敗しました');
+            xhr.onerror = function() {
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                console.error('Error posting content');
             };
 
-            postRequest.send(JSON.stringify(postData));
-        }
+            xhr.send(data);
+        });
     </script>
 </body>
 </html>

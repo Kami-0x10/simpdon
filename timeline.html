@@ -94,8 +94,9 @@
         }
 
         // ページ読み込み時に投稿を取得
-        window.onload = fetchPosts;
+        window.onload = function() {
+            fetchPosts();  // 投稿を取得
+        };
     </script>
 </body>
 </html>
-
