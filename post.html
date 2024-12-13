@@ -19,19 +19,33 @@
     </div>
 
     <script>
-        const instanceUrl = localStorage.getItem('instanceUrl');
-        const accessToken = localStorage.getItem('accessToken');
+        // Cookieから値を取得する関数
+        function getCookie(name) {
+            const nameEq = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i].trim();
+                if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
+            }
+            return "";
+        }
+
+        // ログイン確認
+        const instanceUrl = getCookie('instanceUrl');
+        const accessToken = getCookie('accessToken');
         if (!instanceUrl || !accessToken) {
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
+        // 投稿ボタンのクリックイベント
         document.getElementById('submit-post').addEventListener('click', function () {
             const content = document.getElementById('new-post').value.trim();
-            const imageFile = document.getElementById('image-upload').files[0];
+            const imageFile = document.getElementById('image-upload').files[0]; // アップロードされた画像ファイル
 
             if (content || imageFile) {
                 let mediaId = null;
 
+                // 画像が選択されている場合、アップロードしてメディアIDを取得
                 if (imageFile) {
                     const formData = new FormData();
                     formData.append('file', imageFile);
@@ -39,6 +53,7 @@
                     const mediaRequest = new XMLHttpRequest();
                     mediaRequest.open('POST', instanceUrl + '/api/v1/media', true);
                     mediaRequest.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+                    
                     mediaRequest.onload = function () {
                         if (mediaRequest.status === 200) {
                             const mediaData = JSON.parse(mediaRequest.responseText);

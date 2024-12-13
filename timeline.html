@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
-        <div id="posts" class="posts"></div>
+        <div id="posts" class="posts">読み込み中...</div>
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -17,59 +17,82 @@
     </div>
 
     <script>
-        const instanceUrl = localStorage.getItem('instanceUrl');
-        const accessToken = localStorage.getItem('accessToken');
+        // Cookieから値を取得する関数
+        function getCookie(name) {
+            const nameEq = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i].trim();
+                if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
+            }
+            return "";
+        }
+
+        // ログイン状態を確認
+        const instanceUrl = getCookie('instanceUrl');
+        const accessToken = getCookie('accessToken');
         if (!instanceUrl || !accessToken) {
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
+        // 投稿の取得
         function fetchPosts() {
             const xhr = new XMLHttpRequest();
-            const API_URL = `${instanceUrl}/api/v1/timelines/public`;
+            const API_URL = `${instanceUrl}/api/v1/timelines/home`; // 変更：認証が必要な「ホーム」タイムラインを取得
             xhr.open("GET", API_URL, true);
             xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
-            xhr.onload = function () {
+            xhr.onload = function() {
                 if (xhr.status === 200) {
                     const data = JSON.parse(xhr.responseText);
                     displayPosts(data);
                 } else {
                     document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                    console.error('Error fetching posts:', xhr.status, xhr.responseText);
                 }
             };
-            xhr.onerror = function () {
+            xhr.onerror = function() {
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                console.error('Error fetching posts');
             };
             xhr.send();
         }
 
+        // 投稿を表示する
         function displayPosts(posts) {
             const postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
+
+            if (posts.length === 0) {
+                postsContainer.innerHTML = '<p>投稿はありません。</p>';
+                return;
+            }
+
             posts.forEach(post => {
                 const postElement = document.createElement('div');
                 postElement.classList.add('post');
-                const username = post.account.acct;
-                const content = post.content;
-                let images = '';
-                if (post.media_attachments && post.media_attachments.length > 0) {
-                    images = post.media_attachments.map(attachment => {
-                        return `<img src="${attachment.url}" alt="画像" class="post-image" />`;
-                    }).join('');
-                }
-
-                const emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, (match, emoji) => {
-                    return `<span class="emoji">${emoji}</span>`;
-                });
-
+                
+                // 投稿内容をHTMLに埋め込む
                 postElement.innerHTML = `
-                    <h2>@${username}</h2>
-                    <p>${emojiContent}</p>
-                    ${images}
+                    <h2>@${post.account.acct}</h2>
+                    <p>${post.content}</p>
+                    ${post.media_attachments && post.media_attachments.length > 0 ? renderMedia(post.media_attachments) : ''}
+                    <p>投稿日: ${new Date(post.created_at).toLocaleString()}</p>
                 `;
                 postsContainer.appendChild(postElement);
             });
         }
 
+        // メディア（画像等）の表示
+        function renderMedia(mediaAttachments) {
+            return mediaAttachments.map(media => {
+                if (media.type === 'image') {
+                    return `<img src="${media.url}" alt="Image" class="post-media" />`;
+                }
+                // 他のメディアタイプがあればここで対応を追加
+            }).join('');
+        }
+
+        // ページ読み込み時に投稿を取得
         window.onload = fetchPosts;
     </script>
 </body>

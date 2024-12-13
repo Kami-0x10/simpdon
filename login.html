@@ -22,14 +22,25 @@
     </div>
 
     <script>
+        // Cookieに値を保存する関数
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000)); // 有効期限
+            const expires = "expires=" + d.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        // DOMが完全に読み込まれた時に実行
         document.addEventListener("DOMContentLoaded", function() {
+            // ログインボタンのクリックイベント
             document.getElementById('login-btn').onclick = function() {
                 const instanceUrl = document.getElementById('instance-url').value.trim();
                 const accessToken = document.getElementById('access-token').value.trim();
                 if (instanceUrl && accessToken) {
-                    localStorage.setItem('instanceUrl', instanceUrl);
-                    localStorage.setItem('accessToken', accessToken);
-                    window.location.href = 'timeline.html';
+                    // インスタンスURLとアクセストークンをCookieに保存
+                    setCookie('instanceUrl', instanceUrl, 7);  // 7日間保存
+                    setCookie('accessToken', accessToken, 7);  // 7日間保存
+                    window.location.href = 'timeline.html'; // 投稿一覧ページに遷移
                 } else {
                     alert('インスタンスURLとアクセストークンを入力してください');
                 }
