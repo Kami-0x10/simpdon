@@ -26,12 +26,13 @@
             var nameEq = name + "=";
             var ca = document.cookie.split(';');
             for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].replace(/^\s+/, '');
+                var c = ca[i].replace(/^\s+/, ''); // 前後の空白を削除
                 if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
             }
             return "";
         }
 
+        // 投稿ボタンがクリックされたとき
         document.getElementById('post-btn').onclick = function () {
             var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
 
@@ -49,36 +50,32 @@
                 return;
             }
 
-            // フォームを動的に作成
-            var form = document.createElement('form');
-            form.method = 'POST';
-            form.action = instanceUrl + '/api/v1/statuses';
-            form.target = 'hidden-frame';
-            form.style.display = 'none';
+            // CORSプロキシを通してAPIリクエストを送信
+            var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
+            var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
-            // アクセストークンをヘッダーとして送信するためのhidden input
-            var authInput = document.createElement('input');
-            authInput.type = 'hidden';
-            authInput.name = 'Authorization';
-            authInput.value = 'Bearer ' + accessToken;
-            form.appendChild(authInput);
+            // リクエストを作成
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", proxyUrl + apiUrl, true);
+            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-            // 投稿内容を追加
-            var contentInput = document.createElement('input');
-            contentInput.type = 'hidden';
-            contentInput.name = 'status';
-            contentInput.value = content;
-            form.appendChild(contentInput);
+            // リクエスト送信時の処理
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        alert('投稿が送信されました');
+                    } else {
+                        alert('投稿の送信に失敗しました');
+                    }
+                }
+            };
 
-            document.body.appendChild(form);
+            // リクエストボディのデータをURLエンコードして送信
+            var params = "status=" + encodeURIComponent(content);
 
-            // フォームを送信
-            form.submit();
-
-            // 送信後フォームを削除
-            form.remove();
-
-            alert('投稿が送信されました');
+            // リクエストを送信
+            xhr.send(params);
         };
     </script>
 </body>

@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
-
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
@@ -42,20 +40,22 @@
 
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
-            var xhr = new XMLHttpRequest();
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
+            var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
 
-            xhr.open("GET", apiUrl, true);
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", proxyUrl + apiUrl, true);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
-            xhr.onreadystatechange = function () {
+            xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
                             displayPosts(data);
                         } catch (e) {
-                            console.error("JSONの解析エラー:", e);
+                            console.error("JSON解析エラー:", e);
                             document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                         }
                     } else {
@@ -65,7 +65,7 @@
                 }
             };
 
-            xhr.onerror = function () {
+            xhr.onerror = function() {
                 console.error('リクエストエラーが発生しました');
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
             };
@@ -78,21 +78,21 @@
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
 
-            for (var i = 0; i < posts.length; i++) {
-                var post = posts[i];
+            posts.forEach(function (post) {
                 var postElement = document.createElement('div');
                 postElement.classList.add('post');
+
                 var username = post.account.acct;
                 var content = post.content;
+
                 // 画像がある場合、その画像を表示
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
-                    images = '';
-                    for (var j = 0; j < post.media_attachments.length; j++) {
-                        var attachment = post.media_attachments[j];
-                        images += '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
-                    }
+                    images = post.media_attachments.map(function (attachment) {
+                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                    }).join('');
                 }
+
                 // 絵文字を処理
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
@@ -100,13 +100,11 @@
 
                 postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
                 postsContainer.appendChild(postElement);
-            }
-
+            });
         }
 
         // ページ読み込み時に投稿を取得
         window.onload = fetchPosts;
     </script>
 </body>
-
 </html>
