@@ -12,80 +12,77 @@
         <div class="post-form">
             <textarea id="new-post" placeholder="ここにトゥートを入力..." rows="4"></textarea>
             <input type="file" id="image-upload" accept="image/*" />
-            <!-- onClick属性を追加 -->
-            <a href="javascript:void(0);" id="submit-post" class="button">トゥートする</a>
+            <button id="submit-post" class="button">トゥートする</button>
         </div>
         <a href="timeline.html" class="link">投稿一覧に戻る</a>
         <a href="login.html" class="link">ログアウト</a>
     </div>
 
     <script>
-        // DOMが完全に読み込まれた時に実行
-        document.addEventListener("DOMContentLoaded", function() {
-            // ログイン確認
-            const instanceUrl = localStorage.getItem('instanceUrl');
-            const accessToken = localStorage.getItem('accessToken');
-            if (!instanceUrl || !accessToken) {
-                window.location.href = 'login.html'; // ログインしていなければログインページに遷移
-            }
+        // ログイン確認
+        const instanceUrl = localStorage.getItem('instanceUrl');
+        const accessToken = localStorage.getItem('accessToken');
+        if (!instanceUrl || !accessToken) {
+            window.location.href = 'login.html'; // ログインしていなければログインページに遷移
+        }
 
-            // 投稿ボタンのクリックイベント
-            document.getElementById('submit-post').onclick = async function() {
-                const content = document.getElementById('new-post').value.trim();
-                const imageFile = document.getElementById('image-upload').files[0]; // アップロードされた画像ファイル
-                if (content || imageFile) {
-                    try {
-                        let mediaId = null;
+        // 投稿ボタンのクリックイベント
+        document.getElementById('submit-post').addEventListener('click', async () => {
+            const content = document.getElementById('new-post').value.trim();
+            const imageFile = document.getElementById('image-upload').files[0]; // アップロードされた画像ファイル
+            
+            if (content || imageFile) {
+                try {
+                    let mediaId = null;
 
-                        // 画像が選択されている場合、アップロードしてメディアIDを取得
-                        if (imageFile) {
-                            const formData = new FormData();
-                            formData.append('file', imageFile);
+                    // 画像が選択されている場合、アップロードしてメディアIDを取得
+                    if (imageFile) {
+                        const formData = new FormData();
+                        formData.append('file', imageFile);
 
-                            const mediaResponse = await fetch(`${instanceUrl}/api/v1/media`, {
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': `Bearer ${accessToken}`
-                                },
-                                body: formData
-                            });
-
-                            if (!mediaResponse.ok) {
-                                throw new Error('画像のアップロードに失敗しました');
-                            }
-                            const mediaData = await mediaResponse.json();
-                            mediaId = mediaData.id;
-                        }
-
-                        // 投稿内容
-                        const postData = {
-                            status: content,
-                            media_ids: mediaId ? [mediaId] : [] // メディアIDがあれば、投稿に添付
-                        };
-
-                        const response = await fetch(`${instanceUrl}/api/v1/statuses`, {
+                        const mediaResponse = await fetch(`${instanceUrl}/api/v1/media`, {
                             method: 'POST',
                             headers: {
-                                'Authorization': `Bearer ${accessToken}`,
-                                'Content-Type': 'application/json'
+                                'Authorization': `Bearer ${accessToken}`
                             },
-                            body: JSON.stringify(postData)
+                            body: formData
                         });
 
-                        if (response.ok) {
-                            alert('投稿が成功しました');
-                            window.location.href = 'timeline.html'; // 投稿成功後に投稿一覧に遷移
-                        } else {
-                            alert('投稿に失敗しました');
+                        if (!mediaResponse.ok) {
+                            throw new Error('画像のアップロードに失敗しました');
                         }
-                    } catch (error) {
-                        console.error('エラー:', error);
+                        const mediaData = await mediaResponse.json();
+                        mediaId = mediaData.id;
+                    }
+
+                    // 投稿内容
+                    const postData = {
+                        status: content,
+                        media_ids: mediaId ? [mediaId] : [] // メディアIDがあれば、投稿に添付
+                    };
+
+                    const response = await fetch(`${instanceUrl}/api/v1/statuses`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(postData)
+                    });
+
+                    if (response.ok) {
+                        alert('投稿が成功しました');
+                        window.location.href = 'timeline.html'; // 投稿成功後に投稿一覧に遷移
+                    } else {
                         alert('投稿に失敗しました');
                     }
-                } else {
-                    alert('投稿内容を入力してください');
+                } catch (error) {
+                    console.error('エラー:', error);
+                    alert('投稿に失敗しました');
                 }
-            };
+            } else {
+                alert('投稿内容を入力してください');
+            }
         });
     </script>
 </body>

@@ -8,6 +8,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    box-sizing: border-box;
 }
 
 /* コンテナ */
@@ -19,6 +20,7 @@ body {
     width: 100%;
     max-width: 400px;
     text-align: center;
+    box-sizing: border-box;
 }
 
 /* 見出し */
@@ -49,6 +51,7 @@ input[type="text"] {
     border: 1px solid #ddd;
     border-radius: 5px;
     margin-top: 5px;
+    width: 100%;
 }
 
 /* ボタン */
@@ -62,7 +65,7 @@ input[type="text"] {
     display: inline-block;
     text-align: center;
     width: 100%; /* これでボタンの幅を100%に設定 */
-    box-sizing: border-box; /* ボタンのパディングを考慮して幅を調整 */
+    box-sizing: border-box;
     cursor: pointer;
 }
 
