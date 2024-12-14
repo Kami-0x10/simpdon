@@ -1,83 +1,70 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
+    <title>新しい投稿 - Simpdon クライアント</title>
 </head>
-
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
-        <div class="form">
-            <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
-            <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
-        </div>
+        <form id="postForm">
+            <textarea id="content" placeholder="投稿内容を入力してください" required></textarea>
+            <button type="submit">投稿</button>
+        </form>
     </div>
-
-    <!-- iframeを追加 -->
-    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
-
     <script>
         function getCookie(name) {
             var nameEq = name + "=";
             var ca = document.cookie.split(';');
             for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].replace(/^\s+/, ''); // 前後の空白を削除
+                var c = ca[i].trim();
                 if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
             }
-            return "";
+            return null;
         }
 
-        // 投稿ボタンがクリックされたとき
-        document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
+        var instanceUrl = getCookie('instanceUrl');
+        var accessToken = getCookie('accessToken');
 
+        if (!instanceUrl || !accessToken) {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('postForm').onsubmit = function(e) {
+            e.preventDefault();
+
+            var content = document.getElementById('content').value.trim();
             if (!content) {
-                alert('投稿内容を入力してください');
+                alert('投稿内容を入力してください。');
                 return;
             }
 
-            var instanceUrl = getCookie('instanceUrl');
-            var accessToken = getCookie('accessToken');
-
-            if (!instanceUrl || !accessToken) {
-                alert('ログイン情報が見つかりません');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            // CORSプロキシを通してAPIリクエストを送信
-            var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
-            var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
-
-            // リクエストを作成
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", proxyUrl + apiUrl, true);
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            // リクエスト送信時の処理
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        alert('投稿が送信されました');
-                    } else {
-                        alert('投稿の送信に失敗しました');
-                    }
+            var apiUrl = instanceUrl + "/api/v1/statuses";
+            fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${accessToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ status: content })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTPエラー: ${response.status}`);
                 }
-            };
-
-            // リクエストボディのデータをURLエンコードして送信
-            var params = "status=" + encodeURIComponent(content);
-
-            // リクエストを送信
-            xhr.send(params);
+                return response.json();
+            })
+            .then(data => {
+                alert('投稿が完了しました！');
+                window.location.href = 'timeline.html';
+            })
+            .catch(error => {
+                console.error(error);
+                alert('投稿に失敗しました。');
+            });
         };
     </script>
 </body>
-
 </html>
