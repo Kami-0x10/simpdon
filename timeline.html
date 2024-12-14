@@ -38,7 +38,7 @@
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿を取得する関数 (XMLHttpRequestを使用)
+        // 投稿を取得する関数 (fetchを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
             var proxyUrl = "https://157.7.205.193:3000/fetch/";  // 修正されたproxyUrl
@@ -46,34 +46,21 @@
             var fullUrl = proxyUrl + encodeURIComponent(apiUrl);
             console.log("Request URL: " + fullUrl);  // URLの確認
 
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", fullUrl, true);
-            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            displayPosts(data); // 成功した場合、投稿を表示
-                        } catch (e) {
-                            console.error("JSON解析エラー:", e);
-                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-                        }
-                    } else {
-                        console.error('ネットワークエラー:', xhr.status, xhr.statusText);
-                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-                    }
-                }
-            };
-
-            xhr.onerror = function() {
-                console.error('リクエストエラーが発生しました');
+            fetch(fullUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayPosts(data); // 成功した場合、投稿を表示
+            })
+            .catch(error => {
+                console.error("リクエストエラー:", error);
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-            };
-
-            xhr.send();
+            });
         }
 
         // 投稿を表示する関数
@@ -111,3 +98,4 @@
     </script>
 </body>
 </html>
+
