@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js"></script>
@@ -8,7 +7,6 @@
     <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
-
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
@@ -34,7 +32,7 @@
 
         // 投稿ボタンがクリックされたとき
         document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
+            var content = document.getElementById('content').value.trim();  // 入力された投稿内容
 
             if (!content) {
                 alert('投稿内容を入力してください');
@@ -50,12 +48,9 @@
                 return;
             }
 
-            // CORSプロキシを通してAPIリクエストを送信
-            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
-            var proxyUrl = "https://157.7.205.193";
+            var proxyUrl = "https://157.7.205.193";  // HTTPSプロキシ
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
-            // リクエストを作成
             var xhr = new XMLHttpRequest();
             xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
@@ -80,5 +75,4 @@
         };
     </script>
 </body>
-
 </html>
