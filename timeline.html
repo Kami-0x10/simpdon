@@ -41,11 +41,13 @@
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
-            var proxyUrl = "http://157.7.205.193:3000/fetch/";
+            var proxyUrl = "http://157.7.205.193:3000/fetch/";  // 修正されたproxyUrl
+
+            var fullUrl = proxyUrl + encodeURIComponent(apiUrl);
+            console.log("Request URL: " + fullUrl);  // URLの確認
 
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", proxyUrl + apiUrl, true);
+            xhr.open("GET", fullUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
@@ -54,7 +56,7 @@
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            displayPosts(data);
+                            displayPosts(data); // 成功した場合、投稿を表示
                         } catch (e) {
                             console.error("JSON解析エラー:", e);
                             document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
