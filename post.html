@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
@@ -15,9 +14,6 @@
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
     </div>
-
-    <!-- iframeを追加 -->
-    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
 
     <script>
         function getCookie(name) {
@@ -48,7 +44,7 @@
                 return;
             }
 
-            var proxyUrl = "https://157.7.205.193";  // HTTPSプロキシ
+            var proxyUrl = "https://157.7.205.193";  // プロキシURL
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
             var xhr = new XMLHttpRequest();
