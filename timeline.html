@@ -9,17 +9,13 @@
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
-
         <div id="posts" class="posts"></div>
-
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
         </div>
     </div>
-
     <script>
-        // CookieからインスタンスURLとアクセストークンを取得する関数
         function getCookie(name) {
             var nameEq = name + "=";
             var ca = document.cookie.split(';');
@@ -27,83 +23,57 @@
                 var c = ca[i].trim();
                 if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
             }
-            return "";
+            return null;
         }
 
-        // ログイン状態を確認
         var instanceUrl = getCookie('instanceUrl');
         var accessToken = getCookie('accessToken');
 
         if (!instanceUrl || !accessToken) {
-            window.location.href = 'login.html'; // ログインしていなければログインページに遷移
+            window.location.href = 'login.html';
         }
 
-        // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
 
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", proxyUrl + apiUrl, true);
-            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            displayPosts(data);
-                        } catch (e) {
-                            console.error("JSON解析エラー:", e);
-                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-                        }
-                    } else {
-                        console.error('ネットワークエラー:', xhr.status, xhr.statusText);
-                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-                    }
+            fetch(apiUrl, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${accessToken}`
                 }
-            };
-
-            xhr.onerror = function() {
-                console.error('リクエストエラーが発生しました');
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTPエラー: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayPosts(data);
+            })
+            .catch(error => {
+                console.error(error);
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-            };
-
-            xhr.send();
+            });
         }
 
-        // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
-            postsContainer.innerHTML = ''; // 既存の投稿をクリア
+            postsContainer.innerHTML = '';
 
-            posts.forEach(function (post) {
+            posts.forEach(post => {
                 var postElement = document.createElement('div');
                 postElement.classList.add('post');
 
                 var username = post.account.acct;
                 var content = post.content;
+                var images = post.media_attachments.map(attachment => `<img src="${attachment.url}" alt="画像" class="post-image" />`).join('');
 
-                // 画像がある場合、その画像を表示
-                var images = '';
-                if (post.media_attachments && post.media_attachments.length > 0) {
-                    images = post.media_attachments.map(function (attachment) {
-                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
-                    }).join('');
-                }
-
-                // 絵文字を処理
-                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
-                    return '<span class="emoji">' + emoji + '</span>';
-                });
-
-                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
+                postElement.innerHTML = `<h2>@${username}</h2><p>${content}</p>${images}`;
                 postsContainer.appendChild(postElement);
             });
         }
 
-        // ページ読み込み時に投稿を取得
         window.onload = fetchPosts;
     </script>
 </body>
