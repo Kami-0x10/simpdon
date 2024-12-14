@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
+
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
@@ -14,6 +17,9 @@
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
     </div>
+
+    <!-- iframeを追加 -->
+    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
 
     <script>
         function getCookie(name) {
@@ -28,7 +34,7 @@
 
         // 投稿ボタンがクリックされたとき
         document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.trim();  // 入力された投稿内容
+            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
 
             if (!content) {
                 alert('投稿内容を入力してください');
@@ -44,9 +50,11 @@
                 return;
             }
 
-            var proxyUrl = "https://157.7.205.193";  // プロキシURL
+            // CORSプロキシを通してAPIリクエストを送信
+            var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
+            // リクエストを作成
             var xhr = new XMLHttpRequest();
             xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
@@ -71,4 +79,5 @@
         };
     </script>
 </body>
+
 </html>
