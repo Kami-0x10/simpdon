@@ -41,7 +41,7 @@
         // 投稿を取得する関数 (fetchを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            var proxyUrl = "https://cors-0x10.online/";  // プロキシURLの修正
+            var proxyUrl = "https://cors-0x10.online/";  // プロキシURL
 
             var fullUrl = proxyUrl + apiUrl; // URLを正しく結合
 
@@ -51,7 +51,7 @@
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + accessToken,
-                    'X-Requested-With': 'XMLHttpRequest',
+                    // x-requested-with ヘッダーを削除
                 },
             })
             .then(response => response.json())
