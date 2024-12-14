@@ -49,10 +49,6 @@
 
             fetch(fullUrl, {
                 method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + accessToken,
-                    // x-requested-with ヘッダーを削除
-                },
             })
             .then(response => {
                 // レスポンスの内容がJSON形式でない場合にエラーハンドリング
