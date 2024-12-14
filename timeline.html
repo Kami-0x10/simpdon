@@ -38,37 +38,39 @@
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿を取得する関数 (Fetch API + AllOriginsを使用)
+        // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            var proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(apiUrl);
+            var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
 
-            fetch(proxyUrl, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", proxyUrl + apiUrl, true);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            displayPosts(data);
+                        } catch (e) {
+                            console.error("JSON解析エラー:", e);
+                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                        }
+                    } else {
+                        console.error('ネットワークエラー:', xhr.status, xhr.statusText);
+                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                    }
                 }
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error("Network response was not ok");
-                }
-            })
-            .then(data => {
-                try {
-                    var jsonData = JSON.parse(data.contents); // AllOriginsのレスポンスの中にある`contents`をJSONパース
-                    displayPosts(jsonData);
-                } catch (e) {
-                    console.error("JSON解析エラー:", e);
-                    document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-                }
-            })
-            .catch(error => {
-                console.error('リクエストエラーが発生しました:', error);
+            };
+
+            xhr.onerror = function() {
+                console.error('リクエストエラーが発生しました');
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-            });
+            };
+
+            xhr.send();
         }
 
         // 投稿を表示する関数
