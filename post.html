@@ -51,30 +51,29 @@
             }
 
             // CORSプロキシを通してAPIリクエストを送信
-            var proxyUrl = "http://157.7.205.193:3000/fetch"; // cors-anywhereを使うためのプロキシURL
+            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
+            var proxyUrl = "http://157.7.2054.193:3000/fetch/";
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
             // リクエストを作成
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", proxyUrl + '/' + apiUrl, true);
+            xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
             // リクエスト送信時の処理
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         alert('投稿が送信されました');
-                        // 投稿後にリダイレクトする場合は以下のコメントを外す
-                        // window.location.href = 'timeline.html'; 
                     } else {
                         alert('投稿の送信に失敗しました');
                     }
                 }
             };
 
-            // リクエストボディのデータをJSONとして送信
-            var params = JSON.stringify({ status: content });
+            // リクエストボディのデータをURLエンコードして送信
+            var params = "status=" + encodeURIComponent(content);
 
             // リクエストを送信
             xhr.send(params);
