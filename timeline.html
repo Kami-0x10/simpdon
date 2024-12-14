@@ -40,10 +40,10 @@
 
         // 投稿を取得する関数 (fetchを使用)
         function fetchPosts() {
-            var apiUrl = instanceUrl + "/api/v1/timelines/public";
+            var apiUrl = instanceUrl + "/api/v1/timelines/public";  // APIのURL
             var proxyUrl = "https://cors-0x10.online/";  // プロキシURL
 
-            var fullUrl = proxyUrl + encodeURIComponent(apiUrl);  // URLを正しくエンコードして結合
+            var fullUrl = proxyUrl + apiUrl;  // URLを正しく結合
 
             console.log("Request URL: " + fullUrl);  // URLの確認
 
@@ -54,7 +54,13 @@
                     // x-requested-with ヘッダーを削除
                 },
             })
-            .then(response => response.json())
+            .then(response => {
+                // レスポンスの内容がJSON形式でない場合にエラーハンドリング
+                if (!response.ok) {
+                    throw new Error('ネットワークエラー: ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
                 displayPosts(data); // 成功した場合、投稿を表示
             })
