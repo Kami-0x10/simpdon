@@ -41,7 +41,7 @@
         // 投稿を取得する関数
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            var proxyUrl = "https://157.7.205.193";  // プロキシURL
+            var proxyUrl = "https://api.allorigins.win/get?url=";  // プロキシURL
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
