@@ -40,8 +40,8 @@
 
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
-            var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            var proxyUrl = "http://157.7.205.193:3000/fetah/";  // 自分のCORSプロキシサーバ（ホワイトリストに追加されたURL）
+            var apiUrl = "/api/v1/timelines/public";  // タイムライン取得用のAPI
+            var proxyUrl = "http://157.7.205.193:3000/fetch";  // 自分のCORSプロキシサーバ（ホワイトリストに追加されたURL）
 
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + apiUrl, true);
@@ -77,6 +77,11 @@
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
+
+            if (posts.length === 0) {
+                postsContainer.innerHTML = '<p>投稿はありません。</p>';
+                return;
+            }
 
             posts.forEach(function (post) {
                 var postElement = document.createElement('div');
