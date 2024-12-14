@@ -41,7 +41,7 @@
         // 投稿を取得する関数 (fetchを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            var proxyUrl = "https://cors-0x10.online:3000/fetch/";  // 修正されたproxyUrl
+            var proxyUrl = "https://cors-0x10.online";  // 修正されたproxyUrl
 
             var fullUrl = proxyUrl + encodeURIComponent(apiUrl);
             console.log("Request URL: " + fullUrl);  // URLの確認
