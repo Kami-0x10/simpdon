@@ -38,10 +38,10 @@
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿を取得する関数 (XMLHttpRequestを使用)
+        // 投稿を取得する関数
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            var proxyUrl = "https://157.7.205.193";  // HTTPSプロキシ
+            var proxyUrl = "https://157.7.205.193";  // プロキシURL
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
