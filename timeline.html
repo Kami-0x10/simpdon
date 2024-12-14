@@ -41,7 +41,7 @@
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
             var apiUrl = "/api/v1/timelines/public";  // タイムライン取得用のAPI
-            var proxyUrl = "http://157.7.205.193:3000/fetch";  // 自分のCORSプロキシサーバ（ホワイトリストに追加されたURL）
+            // var proxyUrl = "http://157.7.205.193:3000/fetch";  // 自分のCORSプロキシサーバ（ホワイトリストに追加されたURL）
 
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + apiUrl, true);
