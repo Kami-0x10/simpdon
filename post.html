@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js"></script>
@@ -7,6 +8,7 @@
     <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
+
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
@@ -15,6 +17,9 @@
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
     </div>
+
+    <!-- iframeを追加 -->
+    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
 
     <script>
         function getCookie(name) {
@@ -29,7 +34,7 @@
 
         // 投稿ボタンがクリックされたとき
         document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.trim();
+            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
 
             if (!content) {
                 alert('投稿内容を入力してください');
@@ -46,29 +51,34 @@
             }
 
             // CORSプロキシを通してAPIリクエストを送信
-            var proxyUrl = "https://cors-0x10.online/";  // プロキシURL
+            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
+            var proxyUrl = "http://157.7.2054.193:3000/fetch/";
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
-            fetch(proxyUrl + apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + accessToken,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ status: content })
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('投稿が送信されました');
-                } else {
-                    alert('投稿の送信に失敗しました');
+            // リクエストを作成
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", proxyUrl + apiUrl, true);
+            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+            // リクエスト送信時の処理
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        alert('投稿が送信されました');
+                    } else {
+                        alert('投稿の送信に失敗しました');
+                    }
                 }
-            })
-            .catch(error => {
-                console.error('投稿エラー:', error);
-                alert('投稿の送信に失敗しました');
-            });
+            };
+
+            // リクエストボディのデータをURLエンコードして送信
+            var params = "status=" + encodeURIComponent(content);
+
+            // リクエストを送信
+            xhr.send(params);
         };
     </script>
 </body>
+
 </html>

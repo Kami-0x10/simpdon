@@ -38,32 +38,40 @@
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿を取得する関数 (fetchを使用)
+        // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
-            var apiUrl = instanceUrl + "/api/v1/timelines/public";  // APIのURL
-            var proxyUrl = "https://cors-0x10.online/";  // プロキシURL
+            var apiUrl = instanceUrl + "/api/v1/timelines/public";
+            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
+            var proxyUrl = "http://157.7.2054.193:3000/fetch/";
 
-            var fullUrl = proxyUrl + apiUrl;  // URLを正しく結合
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", proxyUrl + apiUrl, true);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
-            console.log("Request URL: " + fullUrl);  // URLの確認
-
-            fetch(fullUrl, {
-                method: 'GET',
-            })
-            .then(response => {
-                // レスポンスの内容がJSON形式でない場合にエラーハンドリング
-                if (!response.ok) {
-                    throw new Error('ネットワークエラー: ' + response.status);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            displayPosts(data);
+                        } catch (e) {
+                            console.error("JSON解析エラー:", e);
+                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                        }
+                    } else {
+                        console.error('ネットワークエラー:', xhr.status, xhr.statusText);
+                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                    }
                 }
-                return response.json();
-            })
-            .then(data => {
-                displayPosts(data); // 成功した場合、投稿を表示
-            })
-            .catch(error => {
-                console.error("リクエストエラー:", error);
+            };
+
+            xhr.onerror = function() {
+                console.error('リクエストエラーが発生しました');
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-            });
+            };
+
+            xhr.send();
         }
 
         // 投稿を表示する関数
@@ -97,7 +105,7 @@
         }
 
         // ページ読み込み時に投稿を取得
-        document.addEventListener('DOMContentLoaded', fetchPosts);
+        window.onload = fetchPosts;
     </script>
 </body>
 </html>
