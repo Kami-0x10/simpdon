@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
@@ -15,24 +16,43 @@
             <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
 
             <!-- 画像アップロード用のinputタグ -->
-            <input type="file" id="image-input" accept="image/*">
+            <input type="file" id="image-input" accept="image/*" style="display: none;">
 
             <!-- 画像選択ボタン (inputタグと連携) -->
             <label for="image-input" class="label-file">画像を選択</label>
-
-            <!-- 画像プレビュー表示 -->
-            <div id="image-preview-container" style="display: none;">
-                <img id="image-preview" src="" alt="選択された画像" class="image-preview">
-                <p id="image-filename"></p>
-            </div>
             
+            <div id="image-preview-container"></div> <!-- 画像プレビューを表示する場所 -->
+
+            <p id="image-filename"></p> <!-- ファイル名を表示する場所 -->
+
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
     </div>
 
+    <!-- iframeを追加 -->
     <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
 
     <script>
+        // 画像選択後のプレビュー表示
+        document.getElementById('image-input').addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            if (file) {
+                // 画像プレビュー表示
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    var imgElement = document.createElement('img');
+                    imgElement.src = event.target.result;
+                    imgElement.classList.add('image-preview');
+                    document.getElementById('image-preview-container').innerHTML = '';
+                    document.getElementById('image-preview-container').appendChild(imgElement);
+
+                    // ファイル名を表示
+                    document.getElementById('image-filename').textContent = file.name;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         function getCookie(name) {
             var nameEq = name + "=";
             var ca = document.cookie.split(';');
@@ -45,8 +65,7 @@
 
         // 投稿ボタンがクリックされたとき
         document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
-
+            var content = document.getElementById('content').value.trim();
             if (!content) {
                 alert('投稿内容を入力してください');
                 return;
@@ -65,12 +84,11 @@
             var imageInput = document.getElementById('image-input');
             var imageFile = imageInput.files[0];
 
+            // FormDataを作成
             var formData = new FormData();
-            formData.append("status", content);
-
-            // 画像が選ばれている場合、その画像もFormDataに追加
+            formData.append("status", content);  // テキストを追加
             if (imageFile) {
-                formData.append("file", imageFile);
+                formData.append("file", imageFile);  // 画像を追加
             }
 
             // CORSプロキシを通してAPIリクエストを送信
@@ -81,6 +99,7 @@
             xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
 
+            // リクエスト送信時の処理
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
@@ -94,24 +113,6 @@
             // FormDataを送信
             xhr.send(formData);
         };
-
-        // 画像選択時にプレビュー表示とファイル名表示
-        document.getElementById('image-input').addEventListener('change', function (e) {
-            var file = e.target.files[0];
-            if (file) {
-                // 画像プレビューを表示
-                var reader = new FileReader();
-                reader.onload = function (event) {
-                    var imagePreview = document.getElementById('image-preview');
-                    imagePreview.src = event.target.result;
-                    document.getElementById('image-preview-container').style.display = 'block'; // 画像プレビューを表示
-                };
-                reader.readAsDataURL(file);
-
-                // ファイル名を表示
-                document.getElementById('image-filename').textContent = "選択された画像: " + file.name;
-            }
-        });
     </script>
 </body>
 
