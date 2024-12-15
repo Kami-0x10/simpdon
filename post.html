@@ -1,30 +1,25 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
+
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
         <div class="form">
             <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
-
-            <!-- 画像アップロード用のinputタグ -->
-            <input type="file" id="image-input" accept="image/*" style="display: none;">
-
-            <!-- 画像選択ボタン -->
-            <label for="image-input" class="label-file">画像を選択</label>
-            
-            <!-- 投稿ボタン -->
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
-
-        <!-- 画像名表示 -->
-        <div id="image-name"></div>
     </div>
+
+    <!-- iframeを追加 -->
+    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
 
     <script>
         function getCookie(name) {
@@ -39,8 +34,8 @@
 
         // 投稿ボタンがクリックされたとき
         document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.trim();
-            
+            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
+
             if (!content) {
                 alert('投稿内容を入力してください');
                 return;
@@ -48,23 +43,11 @@
 
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
-            
+
             if (!instanceUrl || !accessToken) {
                 alert('ログイン情報が見つかりません');
                 window.location.href = 'login.html';
                 return;
-            }
-
-            // 画像ファイルを取得
-            var imageInput = document.getElementById('image-input');
-            var imageFile = imageInput.files[0];
-            var formData = new FormData();
-            formData.append("status", content);
-
-            // 画像が選ばれている場合、その画像もFormDataに追加
-            if (imageFile) {
-                formData.append("file", imageFile);
-                document.getElementById('image-name').innerText = "選択された画像: " + imageFile.name;
             }
 
             // CORSプロキシを通してAPIリクエストを送信
@@ -75,6 +58,7 @@
             var xhr = new XMLHttpRequest();
             xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
             // リクエスト送信時の処理
             xhr.onreadystatechange = function () {
@@ -87,9 +71,13 @@
                 }
             };
 
-            // FormDataを送信
-            xhr.send(formData);
+            // リクエストボディのデータをURLエンコードして送信
+            var params = "status=" + encodeURIComponent(content);
+
+            // リクエストを送信
+            xhr.send(params);
         };
     </script>
 </body>
+
 </html>
