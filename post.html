@@ -95,9 +95,9 @@
             var proxyUrl = "https://cors-0x10.online/";
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
+            // XMLHttpRequestを使用してデータを送信
             var xhr = new XMLHttpRequest();
             xhr.open("POST", proxyUrl + apiUrl, true);
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
 
             // リクエスト送信時の処理
             xhr.onreadystatechange = function () {
