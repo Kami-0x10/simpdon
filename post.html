@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20160511/json2.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
-
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
@@ -28,7 +25,6 @@
         </div>
     </div>
 
-    <!-- iframeを追加 -->
     <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
 
     <script>
@@ -44,8 +40,6 @@
                     imgElement.classList.add('image-preview');
                     document.getElementById('image-preview-container').innerHTML = '';
                     document.getElementById('image-preview-container').appendChild(imgElement);
-
-                    // ファイル名を表示
                     document.getElementById('image-filename').textContent = file.name;
                 };
                 reader.readAsDataURL(file);
@@ -115,5 +109,4 @@
         };
     </script>
 </body>
-
 </html>
