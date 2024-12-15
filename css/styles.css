@@ -46,18 +46,47 @@ label {
     margin-bottom: 5px;
 }
 
-/* 入力フィールド */
-input[type="text"] {
+/* 投稿内容入力フィールド */
+textarea {
     padding: 10px;
     font-size: 14px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    margin-top: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 100px;
+}
+
+/* 画像アップロード */
+input[type="file"] {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    display: none; /* ボタンの形にするため、非表示にします */
+}
+
+/* 画像アップロードボタン */
+.label-file {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    display: inline-block;
     width: 100%;
     box-sizing: border-box;
 }
 
-/* ボタン */
+.label-file:hover {
+    background-color: #218838;
+}
+
+/* 投稿ボタン */
 .button {
     background-color: #007bff;
     color: white;
@@ -103,7 +132,7 @@ a:hover {
     h1 {
         font-size: 20px;
     }
-    input[type="text"], .button {
+    textarea, .button {
         font-size: 14px;
     }
 }
