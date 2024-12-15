@@ -16,7 +16,10 @@
             <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
 
             <!-- 画像アップロード用のinputタグ -->
-            <input type="file" id="image-input" accept="image/*">
+            <input type="file" id="image-input" accept="image/*" style="display: none;">
+
+            <!-- 画像選択ボタン (inputタグと連携) -->
+            <label for="image-input" class="label-file">画像を選択</label>
             
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
