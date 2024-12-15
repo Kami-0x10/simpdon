@@ -18,10 +18,11 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px;
+    max-width: 400px; /* 最大幅を400pxに設定 */
     text-align: center;
     box-sizing: border-box;
     margin: 0 15px;
+    overflow: hidden; /* コンテナ内に画像が飛び出さないように */
 }
 
 /* 見出し */
@@ -67,7 +68,7 @@ textarea {
     text-decoration: none;
     display: inline-block;
     text-align: center;
-    width: 100%;
+    width: 100%; /* ボタンの幅を100%に設定 */
     box-sizing: border-box;
     cursor: pointer;
     margin-top: 10px;
@@ -109,4 +110,54 @@ textarea {
     textarea, .button {
         font-size: 14px;
     }
+}
+
+/* 投稿カードのスタイル */
+.post {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+    word-wrap: break-word;
+    overflow: hidden; /* 画像や内容が飛び出さないようにする */
+}
+
+/* 投稿画像の調整 */
+.post-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* 投稿カードの中央配置 */
+.post-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 投稿カードの中央配置 */
+    justify-content: center;
+    width: 100%;
+}
+
+/* 投稿画面の画像プレビューが飛び出さないように調整 */
+#image-preview-container {
+    width: 100%;
+    max-height: 400px;  /* 画像の最大高さを設定 */
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+#image-preview {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* 画像ファイル名 */
+#image-filename {
+    font-size: 14px;
+    color: #555;
+    margin-top: 10px;
 }
