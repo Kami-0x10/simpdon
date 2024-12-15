@@ -16,6 +16,8 @@
         <div class="form">
             <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
+            <!-- 追加: timeline.htmlに戻るボタン -->
+            <a href="timeline.html" class="button">タイムラインに戻る</a>
         </div>
     </div>
 
@@ -52,7 +54,7 @@
             }
 
             // CORSプロキシを通してAPIリクエストを送信
-            var proxyUrl = "https://cors-0x10.online/";
+            var proxyUrl = "https://cors-0x10.online/"; 
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
             // リクエストを作成
