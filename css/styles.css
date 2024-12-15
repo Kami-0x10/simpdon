@@ -1,6 +1,6 @@
 /* 基本のスタイル */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* よりモダンなフォントに */
     margin: 0;
     padding: 0;
     background-color: #f4f4f9;
@@ -14,20 +14,20 @@ body {
 /* コンテナ */
 .container {
     background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px; /* 内側の余白を少し増やして快適に */
+    border-radius: 12px; /* 丸みを増して現代的に */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px;
+    max-width: 450px; /* 少し広めにして視覚的に余裕を持たせる */
     text-align: center;
     box-sizing: border-box;
-    margin: 0 15px;  /* スマホ画面での余白調整 */
+    margin: 0 20px;  /* スマホ画面での余白調整 */
 }
 
 /* 見出し */
 h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 28px;
+    margin-bottom: 25px;
     color: #333;
 }
 
@@ -35,71 +35,65 @@ h1 {
 .form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px; /* フォーム要素間の隙間を少し広く */
 }
 
 /* ラベル */
 label {
-    font-size: 14px;
+    font-size: 16px;
     text-align: left;
     color: #555;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
 /* 入力フィールド */
-input[type="text"] {
-    padding: 10px;
-    font-size: 14px;
+input[type="text"], textarea {
+    padding: 14px;
+    font-size: 16px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 8px; /* 入力フィールドの角を丸めて、柔らかい印象に */
     margin-top: 5px;
     width: 100%;
     box-sizing: border-box;
+    transition: border-color 0.3s ease; /* フォーカス時の色変更 */
+}
+
+input[type="text"]:focus, textarea:focus {
+    border-color: #007bff; /* フォーカス時の青色強調 */
+    outline: none;
 }
 
 /* テキストエリア */
 textarea {
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-top: 5px;
-    width: 100%;
-    height: 100px;
-    box-sizing: border-box;
+    height: 120px; /* もう少し高くして、快適に */
 }
 
 /* ボタン */
 .button {
     background-color: #007bff;
     color: white;
-    padding: 12px 20px;
-    font-size: 16px;
-    border-radius: 5px;
+    padding: 15px 0;
+    font-size: 18px;
+    border-radius: 8px;
     text-decoration: none;
     display: inline-block;
     text-align: center;
-    width: 100%; /* ボタンの幅を100%に設定 */
+    width: 100%;
     box-sizing: border-box;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
 }
 
 .button:hover {
     background-color: #0056b3;
 }
 
-/* 追加情報のスタイル */
-p {
-    font-size: 14px;
-    color: #555;
-    margin-top: 20px;
-}
-
 /* リンク */
 a {
     text-decoration: none;
     color: #007bff;
+    font-size: 14px;
 }
 
 a:hover {
@@ -109,24 +103,24 @@ a:hover {
 /* レスポンシブ対応 */
 @media (max-width: 480px) {
     .container {
-        padding: 15px;
-        margin: 0 10px;  /* 画面幅に合わせた余白 */
+        padding: 20px;  /* スマホ画面での余白調整 */
+        margin: 0 10px;
     }
     h1 {
-        font-size: 20px;
+        font-size: 24px;
     }
-    input[type="text"], .button {
-        font-size: 14px;
+    input[type="text"], textarea, .button {
+        font-size: 16px;
     }
 }
 
 /* 投稿のカード */
 .post {
     background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    margin-bottom: 15px;
-    word-wrap: break-word; /* 長い単語が改行されるように */
-    overflow: hidden;  /* 画像などがカード外に出ないように */
+    border-radius: 12px; /* 角を丸めて柔らかい印象に */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    word-wrap: break-word;
+    overflow: hidden;
 }
