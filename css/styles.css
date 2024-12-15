@@ -21,8 +21,6 @@ body {
     max-width: 400px;
     text-align: center;
     box-sizing: border-box;
-    margin: 0 15px;
-    overflow: hidden; /* コンテナ内に画像が飛び出さないように */
 }
 
 /* 見出し */
@@ -39,16 +37,7 @@ h1 {
     gap: 15px;
 }
 
-/* ラベル */
-label {
-    font-size: 14px;
-    text-align: left;
-    color: #555;
-    margin-bottom: 5px;
-    cursor: pointer;
-}
-
-/* 入力フィールド */
+/* テキストエリア */
 textarea {
     padding: 10px;
     font-size: 14px;
@@ -57,6 +46,18 @@ textarea {
     margin-top: 5px;
     width: 100%;
     box-sizing: border-box;
+}
+
+/* 画像選択ボタン */
+.label-file {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 16px;
 }
 
 /* ボタン */
@@ -72,31 +73,18 @@ textarea {
     width: 100%; /* ボタンの幅を100%に設定 */
     box-sizing: border-box;
     cursor: pointer;
-    margin-top: 10px;
 }
 
 .button:hover {
     background-color: #0056b3;
 }
 
-/* 画像プレビュー */
-.image-preview {
-    max-width: 100%;
-    height: auto;
-    margin-top: 10px;
-    border-radius: 8px;
-}
-
-/* ファイル名の表示 */
-#image-filename {
+/* 画像名表示 */
+#image-name {
     font-size: 14px;
     color: #555;
-    margin-top: 5px;
-}
-
-/* 画像アップロードのプレビュー */
-#image-preview-container {
-    margin-top: 15px;
+    margin-top: 10px;
+    text-align: left;
 }
 
 /* レスポンシブ対応 */
