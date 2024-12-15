@@ -93,13 +93,8 @@
                         return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
                     }).join('');
                 }
-
-                // 絵文字を処理
-                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
-                    return '<span class="emoji">' + emoji + '</span>';
-                });
-
-                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
+                
+                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + '</p>' + images;
                 postsContainer.appendChild(postElement);
             });
         }
