@@ -100,3 +100,44 @@ textarea {
         font-size: 14px;
     }
 }
+
+/* 投稿のカード */
+.post {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+    word-wrap: break-word; /* 長い単語が改行されるように */
+    overflow: hidden;  /* 画像などがカード外に出ないように */
+    position: relative; /* 親要素にrelativeを設定 */
+}
+
+/* 投稿の画像 */
+.post-image {
+    width: 100%;  /* 親要素の幅に合わせて画像を縮小 */
+    height: auto; /* 高さは自動で調整 */
+    border-radius: 8px;  /* 画像の角を丸くする */
+    margin-top: 10px; /* 画像の上に少し余白 */
+    object-fit: cover; /* 画像が親要素に収まるように調整 */
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+        margin: 0 10px;
+    }
+    h1 {
+        font-size: 20px;
+    }
+    textarea, .button {
+        font-size: 14px;
+    }
+    /* 画像の設定も確認 */
+    .post-image {
+        width: 100%;  /* 画面幅に合わせて縮小 */
+        height: auto;
+    }
+}
+
