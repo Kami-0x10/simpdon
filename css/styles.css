@@ -124,3 +124,12 @@ a:hover {
     word-wrap: break-word;
     overflow: hidden;
 }
+
+/* 投稿画像のスタイル */
+.post img {
+    max-width: 100%;  /* 親要素に合わせて最大幅を100%に */
+    height: auto;     /* アスペクト比を保ちながら高さを自動調整 */
+    border-radius: 8px; /* 画像の角を丸めてカードとの一貫性を持たせる */
+    object-fit: cover;  /* 画像が枠に収まるように調整 */
+}
+
