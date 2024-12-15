@@ -14,6 +14,10 @@
         <h1>新しい投稿</h1>
         <div class="form">
             <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
+
+            <!-- 画像アップロード用のinputタグ -->
+            <input type="file" id="image-input" accept="image/*">
+            
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
     </div>
@@ -50,8 +54,19 @@
                 return;
             }
 
+            // 画像ファイルを取得
+            var imageInput = document.getElementById('image-input');
+            var imageFile = imageInput.files[0];
+
+            var formData = new FormData();
+            formData.append("status", content);
+
+            // 画像が選ばれている場合、その画像もFormDataに追加
+            if (imageFile) {
+                formData.append("file", imageFile);
+            }
+
             // CORSプロキシを通してAPIリクエストを送信
-            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
             var proxyUrl = "https://cors-0x10.online/";
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
@@ -59,7 +74,6 @@
             var xhr = new XMLHttpRequest();
             xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
             // リクエスト送信時の処理
             xhr.onreadystatechange = function () {
@@ -72,11 +86,8 @@
                 }
             };
 
-            // リクエストボディのデータをURLエンコードして送信
-            var params = "status=" + encodeURIComponent(content);
-
-            // リクエストを送信
-            xhr.send(params);
+            // FormDataを送信
+            xhr.send(formData);
         };
     </script>
 </body>
