@@ -15,37 +15,18 @@
             <!-- 画像アップロード用のinputタグ -->
             <input type="file" id="image-input" accept="image/*" style="display: none;">
 
-            <!-- 画像選択ボタン (inputタグと連携) -->
+            <!-- 画像選択ボタン -->
             <label for="image-input" class="label-file">画像を選択</label>
-
-            <div id="image-preview-container"></div> <!-- 画像プレビューを表示する場所 -->
-            <p id="image-filename"></p> <!-- ファイル名を表示する場所 -->
-
+            
+            <!-- 投稿ボタン -->
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
+
+        <!-- 画像名表示 -->
+        <div id="image-name"></div>
     </div>
 
-    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
-
     <script>
-        // 画像選択後のプレビュー表示
-        document.getElementById('image-input').addEventListener('change', function (e) {
-            var file = e.target.files[0];
-            if (file) {
-                // 画像プレビュー表示
-                var reader = new FileReader();
-                reader.onload = function (event) {
-                    var imgElement = document.createElement('img');
-                    imgElement.src = event.target.result;
-                    imgElement.classList.add('image-preview');
-                    document.getElementById('image-preview-container').innerHTML = '';
-                    document.getElementById('image-preview-container').appendChild(imgElement);
-                    document.getElementById('image-filename').textContent = file.name;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
         function getCookie(name) {
             var nameEq = name + "=";
             var ca = document.cookie.split(';');
@@ -59,6 +40,7 @@
         // 投稿ボタンがクリックされたとき
         document.getElementById('post-btn').onclick = function () {
             var content = document.getElementById('content').value.trim();
+            
             if (!content) {
                 alert('投稿内容を入力してください');
                 return;
@@ -66,7 +48,7 @@
 
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
-
+            
             if (!instanceUrl || !accessToken) {
                 alert('ログイン情報が見つかりません');
                 window.location.href = 'login.html';
@@ -76,22 +58,23 @@
             // 画像ファイルを取得
             var imageInput = document.getElementById('image-input');
             var imageFile = imageInput.files[0];
-
-            // FormDataを作成
             var formData = new FormData();
-            formData.append("status", content);  // テキストを追加
+            formData.append("status", content);
+
+            // 画像が選ばれている場合、その画像もFormDataに追加
             if (imageFile) {
-                formData.append("file", imageFile);  // 画像を追加
+                formData.append("file", imageFile);
+                document.getElementById('image-name').innerText = "選択された画像: " + imageFile.name;
             }
 
             // CORSプロキシを通してAPIリクエストを送信
             var proxyUrl = "https://cors-0x10.online/";
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
-            // XMLHttpRequestを使用してデータを送信
+            // リクエストを作成
             var xhr = new XMLHttpRequest();
             xhr.open("POST", proxyUrl + apiUrl, true);
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);  // Bearerトークンを設定
+            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
 
             // リクエスト送信時の処理
             xhr.onreadystatechange = function () {
