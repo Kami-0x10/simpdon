@@ -109,9 +109,11 @@ textarea {
     padding: 15px;
     margin-bottom: 15px;
     word-wrap: break-word; /* 長い単語が改行されるように */
-    overflow: hidden;  /* 画像などがカード外に出ないように */
-    position: relative; /* 親要素にrelativeを設定 */
+    overflow: visible; /* オーバーフローを表示させる */
+    height: auto; /* 高さを自動調整 */
+    position: relative;
 }
+
 
 /* 投稿の画像 */
 .post-image {
