@@ -19,12 +19,17 @@
 
             <!-- 画像選択ボタン (inputタグと連携) -->
             <label for="image-input" class="label-file">画像を選択</label>
+
+            <!-- 画像プレビュー表示 -->
+            <div id="image-preview-container" style="display: none;">
+                <img id="image-preview" src="" alt="選択された画像" class="image-preview">
+                <p id="image-filename"></p>
+            </div>
             
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
         </div>
     </div>
 
-    <!-- iframeを追加 -->
     <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
 
     <script>
@@ -60,22 +65,22 @@
             var imageInput = document.getElementById('image-input');
             var imageFile = imageInput.files[0];
 
-            var xhr = new XMLHttpRequest();
-            var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
             var formData = new FormData();
+            formData.append("status", content);
 
-            // 投稿内容
-            formData.append('status', content);
-
-            // 画像ファイルが選ばれていれば、ファイルも追加
+            // 画像が選ばれている場合、その画像もFormDataに追加
             if (imageFile) {
                 formData.append("file", imageFile);
             }
 
-            xhr.open("POST", apiUrl, true);
+            // CORSプロキシを通してAPIリクエストを送信
+            var proxyUrl = "https://cors-0x10.online/";
+            var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
 
-            // リクエスト送信時の処理
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
@@ -89,6 +94,24 @@
             // FormDataを送信
             xhr.send(formData);
         };
+
+        // 画像選択時にプレビュー表示とファイル名表示
+        document.getElementById('image-input').addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            if (file) {
+                // 画像プレビューを表示
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    var imagePreview = document.getElementById('image-preview');
+                    imagePreview.src = event.target.result;
+                    document.getElementById('image-preview-container').style.display = 'block'; // 画像プレビューを表示
+                };
+                reader.readAsDataURL(file);
+
+                // ファイル名を表示
+                document.getElementById('image-filename').textContent = "選択された画像: " + file.name;
+            }
+        });
     </script>
 </body>
 
