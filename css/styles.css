@@ -1,6 +1,6 @@
 /* 基本のスタイル */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* よりモダンなフォントに */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f9;
@@ -32,6 +32,9 @@ h1 {
     font-size: 28px;
     margin-bottom: 25px;
     color: #333;
+    text-align: center;  /* 見出しを中央揃え */
+    word-wrap: break-word;  /* 長い単語が切れるように */
+    padding: 0 10px;  /* 横の余白を追加 */
 }
 
 /* フォーム */
@@ -111,9 +114,15 @@ a:hover {
     }
     h1 {
         font-size: 24px;
+        margin-bottom: 15px;  /* スペース調整 */
+        padding: 0 10px;  /* 横の余白を追加 */
     }
     input[type="text"], textarea, .button {
         font-size: 16px;
+    }
+    /* ヘッダーに余白を加える */
+    .container {
+        padding-top: 15px;
     }
 }
 
