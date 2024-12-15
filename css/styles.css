@@ -135,6 +135,8 @@ a:hover {
     margin-bottom: 20px;
     word-wrap: break-word;
     overflow: hidden;
+    color: #333;  /* 文字色を明示的に指定 */
+    text-align: left;  /* 文字を左寄せ */
 }
 
 /* 投稿画像のスタイル */
