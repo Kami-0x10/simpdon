@@ -40,37 +40,28 @@
 
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
-            var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
-            var proxyUrl = "https://cors-0x10.online/";
+            var apiUrl = instanceUrl + "/api/v1/timelines/public";  // APIのURL
+            var proxyUrl = "https://cors-0x10.online/";  // プロキシURL
+
+            var fullUrl = proxyUrl + apiUrl;  // URLを正しく結合
+
+            console.log("Request URL: " + fullUrl);  // URLの確認
 
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", proxyUrl + apiUrl, true);
-            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            displayPosts(data);
-                        } catch (e) {
-                            console.error("JSON解析エラー:", e);
-                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-                        }
-                    } else {
-                        console.error('ネットワークエラー:', xhr.status, xhr.statusText);
-                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-                    }
+            xhr.open('GET', fullUrl, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    displayPosts(data); // 成功した場合、投稿を表示
+                } else {
+                    console.error("リクエストエラー:", xhr.status);
+                    document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                 }
             };
-
-            xhr.onerror = function() {
-                console.error('リクエストエラーが発生しました');
+            xhr.onerror = function () {
+                console.error("ネットワークエラー");
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
             };
-
             xhr.send();
         }
 
@@ -94,7 +85,7 @@
                     }).join('');
                 }
 
-                
+                // 絵文字を処理
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
@@ -105,7 +96,7 @@
         }
 
         // ページ読み込み時に投稿を取得
-        window.onload = fetchPosts;
+        document.addEventListener('DOMContentLoaded', fetchPosts);
     </script>
 </body>
 </html>
