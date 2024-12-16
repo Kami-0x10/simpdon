@@ -51,7 +51,7 @@
             var proxyUrl = "https://cors-0x10.online/";
 
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", proxyUrl + apiUrl, true);
+            xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
