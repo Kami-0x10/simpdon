@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -62,24 +61,29 @@
             var xhr = new XMLHttpRequest();
             xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Content-Type", "application/json"); // JSON形式に変更
 
             // リクエスト送信時の処理
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        alert('投稿が送信されました');
+                        var response = JSON.parse(xhr.responseText); // レスポンスをJSONとして解析
+                        if (response.id) {
+                            alert('投稿が送信されました');
+                        } else {
+                            alert('投稿の送信に失敗しました');
+                        }
                     } else {
-                        alert('投稿の送信に失敗しました');
+                        alert('投稿の送信に失敗しました。エラーコード: ' + xhr.status);
                     }
                 }
             };
 
-            // リクエストボディのデータをURLエンコードして送信
-            var params = "status=" + encodeURIComponent(content);
+            // リクエストボディのデータをJSON形式で送信
+            var data = JSON.stringify({ status: content });
 
             // リクエストを送信
-            xhr.send(params);
+            xhr.send(data);
         };
     </script>
 </body>
