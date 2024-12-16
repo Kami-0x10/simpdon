@@ -2,12 +2,6 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <link rel="apple-touch-icon" href="./ico/global.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="./ico/global.ico">
-    <!-- Windowsタイル用アイコン -->
-    <meta name="msapplication-TileImage" content="./ico/global.ico">
-    <meta name="msapplication-TileColor" content="#ffffff"> <!-- タイルの背景色 -->
-    <link rel="icon" href="./ico/global.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
@@ -48,10 +42,10 @@
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
             //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
-            var proxyUrl = "https://cors-0x10.online/";
+            var proxyUrl = "http://157.7.2054.193:3000/fetch/";
 
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", proxyUrl + apiUrl, true);
+            xhr.open("GET", proxyUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
@@ -100,7 +94,7 @@
                     }).join('');
                 }
 
-                
+                // 絵文字を処理
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
