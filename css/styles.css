@@ -1,6 +1,6 @@
 /* 基本のスタイル */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* よりモダンなフォントに */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f9;
@@ -14,11 +14,11 @@ body {
 /* コンテナ */
 .container {
     background-color: white;
-    padding: 30px; /* 内側の余白を少し増やして快適に */
-    border-radius: 12px; /* 丸みを増して現代的に */
+    padding: 30px;
+    border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 450px; /* 少し広めにして視覚的に余裕を持たせる */
+    max-width: 450px;
     text-align: center;
     box-sizing: border-box;
     margin: 0 20px;  /* スマホ画面での余白調整 */
@@ -35,7 +35,7 @@ h1 {
 .form {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* フォーム要素間の隙間を少し広く */
+    gap: 20px;
 }
 
 /* ラベル */
@@ -51,21 +51,21 @@ input[type="text"], textarea {
     padding: 14px;
     font-size: 16px;
     border: 1px solid #ddd;
-    border-radius: 8px; /* 入力フィールドの角を丸めて、柔らかい印象に */
+    border-radius: 8px;
     margin-top: 5px;
     width: 100%;
     box-sizing: border-box;
-    transition: border-color 0.3s ease; /* フォーカス時の色変更 */
+    transition: border-color 0.3s ease;
 }
 
 input[type="text"]:focus, textarea:focus {
-    border-color: #007bff; /* フォーカス時の青色強調 */
+    border-color: #007bff;
     outline: none;
 }
 
 /* テキストエリア */
 textarea {
-    height: 120px; /* もう少し高くして、快適に */
+    height: 120px;
 }
 
 /* ボタン */
@@ -103,7 +103,7 @@ a:hover {
 /* レスポンシブ対応 */
 @media (max-width: 480px) {
     .container {
-        padding: 20px;  /* スマホ画面での余白調整 */
+        padding: 20px;
         margin: 0 10px;
     }
     h1 {
@@ -113,23 +113,3 @@ a:hover {
         font-size: 16px;
     }
 }
-
-/* 投稿のカード */
-.post {
-    background-color: #fff;
-    border-radius: 12px; /* 角を丸めて柔らかい印象に */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-    word-wrap: break-word;
-    overflow: hidden;
-}
-
-/* 投稿画像のスタイル */
-.post img {
-    max-width: 100%;  /* 親要素に合わせて最大幅を100%に */
-    height: auto;     /* アスペクト比を保ちながら高さを自動調整 */
-    border-radius: 8px; /* 画像の角を丸めてカードとの一貫性を持たせる */
-    object-fit: cover;  /* 画像が枠に収まるように調整 */
-}
-
