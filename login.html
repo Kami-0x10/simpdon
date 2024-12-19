@@ -1,12 +1,11 @@
 <!DOCTYPE html> 
-<html lang="ja"> 
+<html lang="ja">
 <head> 
     <meta charset="UTF-8">
     <link rel="apple-touch-icon" href="./ico/global.ico">
     <link rel="icon" type="image/png" sizes="192x192" href="./ico/global.ico">
-    <!-- Windowsタイル用アイコン -->
     <meta name="msapplication-TileImage" content="./ico/global.ico">
-    <meta name="msapplication-TileColor" content="#ffffff"> <!-- タイルの背景色 -->
+    <meta name="msapplication-TileColor" content="#ffffff">
     <link rel="icon" href="./ico/global.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>ログイン - Simpdon クライアント</title> 
@@ -25,29 +24,26 @@
             <a href="javascript:void(0);" id="login-btn" class="button">ログイン</a> 
         </div> 
     </div> 
- 
+
     <script> 
-        // CookieにインスタンスURLとアクセストークンを保存する関数 
         function setCookie(name, value) { 
             var expires = new Date(); 
-            expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1年後に有効 
+            expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000)); 
             document.cookie = name + "=" + value + ";expires=" + expires.toUTCString() + ";path=/"; 
         } 
- 
-        // ログインボタンのクリックイベント 
+
         document.getElementById('login-btn').onclick = function() { 
             const instanceUrl = document.getElementById('instance-url').value.trim(); 
             const accessToken = document.getElementById('access-token').value.trim(); 
- 
+
             if (instanceUrl && accessToken) { 
-                // インスタンスURLとアクセストークンをcookieに保存 
                 setCookie('instanceUrl', instanceUrl); 
                 setCookie('accessToken', accessToken); 
-                window.location.href = 'timeline.html'; // 投稿一覧ページに遷移 
+                window.location.href = 'timeline.html'; 
             } else { 
                 alert('インスタンスURLとアクセストークンを入力してください'); 
             } 
         }; 
     </script> 
 </body> 
-</html> 
+</html>
