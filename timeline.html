@@ -1,20 +1,24 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="apple-touch-icon" href="./ico/global.ico">
     <link rel="icon" type="image/png" sizes="192x192" href="./ico/global.ico">
+    <!-- Windowsタイル用アイコン -->
     <meta name="msapplication-TileImage" content="./ico/global.ico">
-    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileColor" content="#ffffff"> <!-- タイルの背景色 -->
     <link rel="icon" href="./ico/global.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
+
         <div id="posts" class="posts"></div>
+
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -44,6 +48,7 @@
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
+            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
             var proxyUrl = "https://cors-0x10.online/";
 
             var xhr = new XMLHttpRequest();
@@ -76,24 +81,12 @@
             xhr.send();
         }
 
-        // WebPがサポートされているかを確認する関数
-        function isWebPSupported() {
-            var canvas = document.createElement('canvas');
-            if (!canvas.getContext) return false;
-            var ctx = canvas.getContext('2d');
-            try {
-                return ctx.drawImage(document.createElement('img'), 0, 0, 1, 1), canvas.toDataURL('image/webp').indexOf('data:image/webp') == 0;
-            } catch (e) {
-                return false;
-            }
-        }
-
         // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
 
-            posts.forEach(function(post) {
+            posts.forEach(function (post) {
                 var postElement = document.createElement('div');
                 postElement.classList.add('post');
 
@@ -103,14 +96,13 @@
                 // 画像がある場合、その画像を表示
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
-                    images = post.media_attachments.map(function(attachment) {
-                        // WebPがサポートされている場合、WebPを表示
-                        var imageUrl = isWebPSupported() ? attachment.url : attachment.url.replace('.webp', '.jpg');
-                        return '<img src="' + imageUrl + '" alt="画像" class="post-image" />';
+                    images = post.media_attachments.map(function (attachment) {
+                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
                     }).join('');
                 }
 
-                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function(match, emoji) {
+                
+                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
