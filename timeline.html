@@ -2,14 +2,14 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="apple-touch-icon" href="./ico/global.ico">
     <link rel="icon" type="image/png" sizes="192x192" href="./ico/global.ico">
     <!-- Windowsタイル用アイコン -->
     <meta name="msapplication-TileImage" content="./ico/global.ico">
     <meta name="msapplication-TileColor" content="#ffffff"> <!-- タイルの背景色 -->
     <link rel="icon" href="./ico/global.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
@@ -47,7 +47,6 @@
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            // var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
             var proxyUrl = "https://cors-0x10.online/";
 
             var xhr = new XMLHttpRequest();
