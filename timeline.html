@@ -2,12 +2,6 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <link rel="apple-touch-icon" href="./ico/global.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="./ico/global.ico">
-    <!-- Windowsタイル用アイコン -->
-    <meta name="msapplication-TileImage" content="./ico/global.ico">
-    <meta name="msapplication-TileColor" content="#ffffff"> <!-- タイルの背景色 -->
-    <link rel="icon" href="./ico/global.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
@@ -15,9 +9,7 @@
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
-
         <div id="posts" class="posts"></div>
-
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -88,14 +80,13 @@
                 var postElement = document.createElement('div');
                 postElement.classList.add('post');
 
-                var username = post.account.username;  // Mastodonのユーザー名に変更
+                var username = post.account.display_name || post.account.username;  // ハンドルネームを表示
                 var content = post.content;
 
                 // 画像がある場合、その画像を表示
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function(attachment) {
-                        // WebP画像をiOS6対応のためにJPEGやPNGにもフォールバック
                         return '<picture>' +
                                    '<source srcset="' + attachment.url + '" type="image/webp">' +
                                    '<source srcset="' + attachment.url.replace('.webp', '.jpg') + '" type="image/jpeg">' +
@@ -109,7 +100,13 @@
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
+                // ユーザー名（ハンドルネーム）を表示
+                postElement.innerHTML = `
+                    <h2>@${username}</h2>
+                    <p>${emojiContent}</p>
+                    ${images}
+                `;
+
                 postsContainer.appendChild(postElement);
             });
         }
