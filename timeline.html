@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -48,7 +47,7 @@
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
+            // var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
             var proxyUrl = "https://cors-0x10.online/";
 
             var xhr = new XMLHttpRequest();
@@ -86,7 +85,7 @@
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
 
-            posts.forEach(function (post) {
+            posts.forEach(function(post) {
                 var postElement = document.createElement('div');
                 postElement.classList.add('post');
 
@@ -96,13 +95,18 @@
                 // 画像がある場合、その画像を表示
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
-                    images = post.media_attachments.map(function (attachment) {
-                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                    images = post.media_attachments.map(function(attachment) {
+                        // WebP画像をiOS6対応のためにJPEGやPNGにもフォールバック
+                        return '<picture>' +
+                                   '<source srcset="' + attachment.url + '" type="image/webp">' +
+                                   '<source srcset="' + attachment.url.replace('.webp', '.jpg') + '" type="image/jpeg">' +
+                                   '<source srcset="' + attachment.url.replace('.webp', '.png') + '" type="image/png">' +
+                                   '<img src="' + attachment.url.replace('.webp', '.jpg') + '" alt="画像" class="post-image" />' +
+                               '</picture>';
                     }).join('');
                 }
 
-                
-                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
+                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function(match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
