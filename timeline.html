@@ -6,18 +6,15 @@
     <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="apple-touch-icon" href="./ico/global.ico">
     <link rel="icon" type="image/png" sizes="192x192" href="./ico/global.ico">
-    <!-- Windowsタイル用アイコン -->
     <meta name="msapplication-TileImage" content="./ico/global.ico">
-    <meta name="msapplication-TileColor" content="#ffffff"> <!-- タイルの背景色 -->
+    <meta name="msapplication-TileColor" content="#ffffff">
     <link rel="icon" href="./ico/global.ico">
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
-
         <div id="posts" class="posts"></div>
-
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -95,7 +92,6 @@
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function(attachment) {
-                        // WebP画像をiOS6対応のためにJPEGやPNGにもフォールバック
                         return '<picture>' +
                                    '<source srcset="' + attachment.url + '" type="image/webp">' +
                                    '<source srcset="' + attachment.url.replace('.webp', '.jpg') + '" type="image/jpeg">' +
