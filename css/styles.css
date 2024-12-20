@@ -132,3 +132,4 @@ a:hover {
     border-radius: 8px; /* 画像の角を丸めてカードとの一貫性を持たせる */
     object-fit: cover;  /* 画像が枠に収まるように調整 */
 }
+
