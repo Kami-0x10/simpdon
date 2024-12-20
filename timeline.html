@@ -2,14 +2,14 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="apple-touch-icon" href="./ico/global.ico">
     <link rel="icon" type="image/png" sizes="192x192" href="./ico/global.ico">
     <!-- Windowsタイル用アイコン -->
     <meta name="msapplication-TileImage" content="./ico/global.ico">
     <meta name="msapplication-TileColor" content="#ffffff"> <!-- タイルの背景色 -->
     <link rel="icon" href="./ico/global.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
@@ -88,7 +88,7 @@
                 var postElement = document.createElement('div');
                 postElement.classList.add('post');
 
-                var username = post.account.acct;
+                var username = post.account.username;  // Mastodonのユーザー名に変更
                 var content = post.content;
 
                 // 画像がある場合、その画像を表示
