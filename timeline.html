@@ -93,9 +93,13 @@
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function(attachment) {
                         return '<picture>' +
+                                   // WebPを最初に表示
                                    '<source srcset="' + attachment.url + '" type="image/webp">' +
+                                   // WebPが使えない場合はJPEG
                                    '<source srcset="' + attachment.url.replace('.webp', '.jpg') + '" type="image/jpeg">' +
+                                   // それでもダメならPNG
                                    '<source srcset="' + attachment.url.replace('.webp', '.png') + '" type="image/png">' +
+                                   // 最後にimgタグでJPEGを表示
                                    '<img src="' + attachment.url.replace('.webp', '.jpg') + '" alt="画像" class="post-image" />' +
                                '</picture>';
                     }).join('');
