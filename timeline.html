@@ -76,6 +76,18 @@
             xhr.send();
         }
 
+        // WebPがサポートされているかを確認する関数
+        function isWebPSupported() {
+            var canvas = document.createElement('canvas');
+            if (!canvas.getContext) return false;
+            var ctx = canvas.getContext('2d');
+            try {
+                return ctx.drawImage(document.createElement('img'), 0, 0, 1, 1), canvas.toDataURL('image/webp').indexOf('data:image/webp') == 0;
+            } catch (e) {
+                return false;
+            }
+        }
+
         // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
@@ -92,16 +104,9 @@
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function(attachment) {
-                        return '<picture>' +
-                                   // WebPを最初に表示
-                                   '<source srcset="' + attachment.url + '" type="image/webp">' +
-                                   // WebPが使えない場合はJPEG
-                                   '<source srcset="' + attachment.url.replace('.webp', '.jpg') + '" type="image/jpeg">' +
-                                   // それでもダメならPNG
-                                   '<source srcset="' + attachment.url.replace('.webp', '.png') + '" type="image/png">' +
-                                   // 最後にimgタグでJPEGを表示
-                                   '<img src="' + attachment.url.replace('.webp', '.jpg') + '" alt="画像" class="post-image" />' +
-                               '</picture>';
+                        // WebPがサポートされている場合、WebPを表示
+                        var imageUrl = isWebPSupported() ? attachment.url : attachment.url.replace('.webp', '.jpg');
+                        return '<img src="' + imageUrl + '" alt="画像" class="post-image" />';
                     }).join('');
                 }
 
