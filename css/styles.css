@@ -7,7 +7,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
+    height: 100vh;
     box-sizing: border-box;
 }
 
@@ -26,7 +26,7 @@ body {
 
 /* 見出し */
 h1 {
-    font-size: 24px; /* iPhone 4Sの小さい画面でも読みやすく調整 */
+    font-size: 28px;
     margin-bottom: 25px;
     color: #333;
 }
@@ -103,17 +103,14 @@ a:hover {
 /* レスポンシブ対応 */
 @media (max-width: 480px) {
     .container {
-        padding: 15px;  /* スマホ画面での余白調整 */
+        padding: 20px;  /* スマホ画面での余白調整 */
         margin: 0 10px;
     }
     h1 {
-        font-size: 22px; /* iPhone 4S用に少し小さめに調整 */
+        font-size: 24px;
     }
     input[type="text"], textarea, .button {
-        font-size: 14px; /* スマホ用にサイズを調整 */
-    }
-    .form {
-        gap: 15px; /* より小さい画面でのフォーム要素間の隙間 */
+        font-size: 16px;
     }
 }
 
