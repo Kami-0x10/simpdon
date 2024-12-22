@@ -14,9 +14,7 @@
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
-
         <div id="posts" class="posts"></div>
-
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -46,6 +44,7 @@
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
+            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
             var proxyUrl = "https://cors-0x10.online:4443/";
 
             var xhr = new XMLHttpRequest();
@@ -78,23 +77,6 @@
             xhr.send();
         }
 
-        // WEBP画像をBase64 PNGに変換する関数
-        function convertWebpToBase64(webpUrl, callback) {
-            var img = new Image();
-            img.onload = function () {
-                var canvas = document.createElement('canvas');
-                var ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                callback(canvas.toDataURL('image/png'));  // PNG形式に変換してBase64を返す
-            };
-            img.onerror = function () {
-                callback(null);  // エラー時はnullを返す
-            };
-            img.src = webpUrl;
-        }
-
         // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
@@ -110,38 +92,20 @@
                 // 画像がある場合、その画像を表示
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
-                    post.media_attachments.forEach(function (attachment) {
-                        // もしWEBP画像でブラウザがサポートしていない場合、Base64 PNGに変換
+                    images = post.media_attachments.map(function (attachment) {
+                        // 画像がwebp形式ならエラーメッセージを表示
                         if (attachment.url.endsWith('.webp')) {
-                            convertWebpToBase64(attachment.url, function (base64Image) {
-                                if (base64Image) {
-                                    // Base64 PNGに変換された画像を表示
-                                    images += '<img src="' + base64Image + '" alt="画像" class="post-image" />';
-                                } else {
-                                    // 変換できなかった場合、そのままWEBPを表示
-                                    images += '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
-                                }
-                                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + content + '</p>' + images;
-                                postsContainer.appendChild(postElement);
-                            });
-                        } else {
-                            // WEBP以外の画像形式
-                            images += '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
-                            postElement.innerHTML = '<h2>@' + username + '</h2><p>' + content + '</p>' + images;
-                            postsContainer.appendChild(postElement);
+                            return '<p>画像の読み込みに失敗しました。</p>';
                         }
-                    });
+                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                    }).join('');
                 }
 
-                // 絵文字を変換
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                // 投稿内容と画像を表示
-                if (!images) {
-                    postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>';
-                }
+                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
                 postsContainer.appendChild(postElement);
             });
         }
