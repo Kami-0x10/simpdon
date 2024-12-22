@@ -65,34 +65,35 @@
                 return;
             }
 
-            // 投稿データ
-            var data = { status: content };
+            var proxyUrl = "https://cors-0x10.online:4443/";  // CORSプロキシ
+
+            // FormDataオブジェクトを作成
+            var formData = new FormData();
+            formData.append('status', content);  // 投稿内容を追加
 
             if (imageFile) {
                 // 画像がある場合、Base64エンコードして投稿データに追加
                 encodeImageToBase64(imageFile, function(base64Image) {
-                    data.file = base64Image;  // Base64エンコードされた画像データを投稿データに追加
+                    formData.append('file', base64Image);  // Base64エンコードされた画像データを追加
 
                     // 投稿を送信
-                    sendPostRequest(data);
+                    sendPostRequest(formData);
                 });
             } else {
                 // 画像がない場合、そのまま投稿
-                sendPostRequest(data);
+                sendPostRequest(formData);
             }
         };
 
         // 投稿を送信する関数
-        function sendPostRequest(data) {
+        function sendPostRequest(formData) {
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
-            var proxyUrl = "https://cors-0x10.online:4443/";  // CORSプロキシ
 
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", proxyUrl + apiUrl, true);  // CORSプロキシ経由でリクエスト
+            xhr.open("POST", "https://cors-0x10.online:4443/" + apiUrl, true);  // CORSプロキシ経由でリクエスト
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-            xhr.setRequestHeader("Content-Type", "application/json");
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
@@ -109,8 +110,8 @@
                 }
             };
 
-            // リクエストボディのデータをJSON形式で送信
-            xhr.send(JSON.stringify(data));
+            // FormDataオブジェクトを送信
+            xhr.send(formData);
         }
     </script>
 </body>
