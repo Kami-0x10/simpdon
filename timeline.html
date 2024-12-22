@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -47,7 +46,6 @@
         // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
             var proxyUrl = "https://cors-0x10.online:4443/";
 
             var xhr = new XMLHttpRequest();
@@ -80,6 +78,32 @@
             xhr.send();
         }
 
+        // WEBP形式をサポートしているかを確認する関数
+        function supportsWebp() {
+            var canvas = document.createElement('canvas');
+            if (canvas.getContext && canvas.toDataURL) {
+                return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+            }
+            return false;
+        }
+
+        // WEBP画像をBase64 PNGに変換する関数
+        function convertWebpToBase64(webpUrl, callback) {
+            var img = new Image();
+            img.onload = function () {
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                callback(canvas.toDataURL('image/png'));  // PNG形式に変換してBase64を返す
+            };
+            img.onerror = function () {
+                callback(null);  // エラー時はnullを返す
+            };
+            img.src = webpUrl;
+        }
+
         // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
@@ -96,15 +120,31 @@
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function (attachment) {
-                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                        // もしWEBP画像でブラウザがサポートしていない場合、Base64 PNGに変換
+                        if (!supportsWebp() && attachment.url.endsWith('.webp')) {
+                            convertWebpToBase64(attachment.url, function (base64Image) {
+                                if (base64Image) {
+                                    // Base64 PNGに変換された画像を表示
+                                    images += '<img src="' + base64Image + '" alt="画像" class="post-image" />';
+                                } else {
+                                    // 変換できなかった場合、そのままWEBPを表示
+                                    images += '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                                }
+                            });
+                        } else {
+                            // WEBP形式をサポートしている場合、またはWEBP以外の画像形式
+                            images += '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                        }
+                        return images;  // 画像HTMLを返す
                     }).join('');
                 }
 
-                
+                // 絵文字を変換
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
+                // 投稿内容と画像を表示
                 postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
                 postsContainer.appendChild(postElement);
             });
