@@ -26,8 +26,6 @@
         </div>
     </div>
 
-    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
-
     <script>
         function getCookie(name) {
             var nameEq = name + "=";
@@ -39,34 +37,13 @@
             return "";
         }
 
-        // 画像アップロードをフォームで行う方法
-        function uploadImageWithForm(imageFile, callback) {
-            var instanceUrl = getCookie('instanceUrl');
-            var accessToken = getCookie('accessToken');
-            
-            // アップロード用フォームを作成
-            var form = document.createElement('form');
-            form.action = instanceUrl + '/api/v1/media';  // Mastodonのメディアアップロードエンドポイント
-            form.method = 'POST';
-            form.target = 'hidden-frame';  // iframeに結果を表示させる
-
-            // フォームに画像を追加
-            var inputFile = document.createElement('input');
-            inputFile.type = 'file';
-            inputFile.name = 'file';
-            inputFile.files = [imageFile];  // 画像ファイルを設定
-            form.appendChild(inputFile);
-
-            // アクセストークンを追加（Authorizationヘッダーが使えないのでクエリパラメータで）
-            var tokenInput = document.createElement('input');
-            tokenInput.type = 'hidden';
-            tokenInput.name = 'access_token';
-            tokenInput.value = accessToken;
-            form.appendChild(tokenInput);
-
-            // フォームをDOMに追加して送信
-            document.body.appendChild(form);
-            form.submit();
+        // 画像をBase64エンコードしてアップロードする
+        function encodeImageToBase64(file, callback) {
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                callback(reader.result.split(',')[1]);  // Base64エンコードされた画像のデータ部分を返す
+            };
+            reader.readAsDataURL(file);  // ファイルを読み込んでBase64エンコード
         }
 
         // 投稿ボタンがクリックされたとき
@@ -92,9 +69,9 @@
             var data = { status: content };
 
             if (imageFile) {
-                // 画像がある場合、フォームでアップロード
-                uploadImageWithForm(imageFile, function(mediaId) {
-                    data.media_ids = [mediaId];  // 画像IDを投稿に追加
+                // 画像がある場合、Base64エンコードして投稿データに追加
+                encodeImageToBase64(imageFile, function(base64Image) {
+                    data.file = base64Image;  // Base64エンコードされた画像データを投稿データに追加
 
                     // 投稿を送信
                     sendPostRequest(data);
@@ -110,9 +87,10 @@
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
+            var proxyUrl = "https://cors-0x10.online:4443/";  // CORSプロキシ
 
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", apiUrl, true);
+            xhr.open("POST", proxyUrl + apiUrl, true);  // CORSプロキシ経由でリクエスト
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
             xhr.setRequestHeader("Content-Type", "application/json");
 
