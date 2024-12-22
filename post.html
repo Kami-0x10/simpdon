@@ -26,6 +26,9 @@
         </div>
     </div>
 
+    <!-- iframeを追加 -->
+    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
+
     <script>
         function getCookie(name) {
             var nameEq = name + "=";
@@ -37,13 +40,44 @@
             return "";
         }
 
-        // 画像をBase64エンコードしてアップロードする
-        function encodeImageToBase64(file, callback) {
+        // 画像をBase64形式に変換する関数
+        function convertToBase64(file, callback) {
             var reader = new FileReader();
-            reader.onloadend = function () {
-                callback(reader.result.split(',')[1]);  // Base64エンコードされた画像のデータ部分を返す
+            reader.onloadend = function() {
+                callback(reader.result.split(',')[1]);  // Base64文字列（`data:image/*;base64,`部分を除去）
             };
-            reader.readAsDataURL(file);  // ファイルを読み込んでBase64エンコード
+            reader.readAsDataURL(file);
+        }
+
+        // 画像をアップロードして、そのメディアIDを取得する関数
+        function uploadImage(imageFile, callback) {
+            var instanceUrl = getCookie('instanceUrl');
+            var accessToken = getCookie('accessToken');
+
+            var formData = new FormData();
+            formData.append('file', imageFile);
+
+            var apiUrl = instanceUrl + '/api/v1/media';  // 画像アップロード用のAPI URL
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", apiUrl, true);
+            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.id) {
+                            callback(response.id);  // 成功した場合、画像IDをコールバックで返す
+                        } else {
+                            alert('画像のアップロードに失敗しました');
+                        }
+                    } else {
+                        alert('画像のアップロードに失敗しました。エラーコード: ' + xhr.status);
+                    }
+                }
+            };
+
+            xhr.send(formData);  // 画像データを送信
         }
 
         // 投稿ボタンがクリックされたとき
@@ -65,53 +99,62 @@
                 return;
             }
 
-            var proxyUrl = "https://cors-0x10.online:4443/";  // CORSプロキシ
-
-            // FormDataオブジェクトを作成
-            var formData = new FormData();
-            formData.append('status', content);  // 投稿内容を追加
+            // 投稿データ
+            var data = { status: content };
 
             if (imageFile) {
-                // 画像がある場合、Base64エンコードして投稿データに追加
-                encodeImageToBase64(imageFile, function(base64Image) {
-                    formData.append('file', base64Image);  // Base64エンコードされた画像データを追加
+                // 画像がある場合、先にアップロードしてそのIDを取得
+                uploadImage(imageFile, function(mediaId) {
+                    data.media_ids = [mediaId];  // 画像IDを投稿に追加
 
-                    // 投稿を送信
-                    sendPostRequest(formData);
+                    // iframeを使って投稿送信
+                    sendPostRequestViaIframe(data);
                 });
             } else {
                 // 画像がない場合、そのまま投稿
-                sendPostRequest(formData);
+                sendPostRequestViaIframe(data);
             }
         };
 
-        // 投稿を送信する関数
-        function sendPostRequest(formData) {
+        // iframeを使って投稿を送信する関数
+        function sendPostRequestViaIframe(data) {
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "https://cors-0x10.online:4443/" + apiUrl, true);  // CORSプロキシ経由でリクエスト
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+            // iframeを設定
+            var iframe = document.getElementById('hidden-frame');
+            var form = document.createElement('form');
+            form.setAttribute('method', 'POST');
+            form.setAttribute('action', 'https://cors-0x10.online:4443/' + apiUrl);  // CORSプロキシを経由
+            form.setAttribute('target', 'hidden-frame');
+            
+            // 投稿データをhiddenフィールドに追加
+            var inputContent = document.createElement('input');
+            inputContent.setAttribute('type', 'hidden');
+            inputContent.setAttribute('name', 'status');
+            inputContent.setAttribute('value', data.status);
+            form.appendChild(inputContent);
 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.id) {
-                            alert('投稿が送信されました');
-                        } else {
-                            alert('投稿の送信に失敗しました');
-                        }
-                    } else {
-                        alert('投稿の送信に失敗しました。エラーコード: ' + xhr.status);
-                    }
-                }
-            };
+            // 画像IDをhiddenフィールドに追加
+            if (data.media_ids) {
+                var inputMedia = document.createElement('input');
+                inputMedia.setAttribute('type', 'hidden');
+                inputMedia.setAttribute('name', 'media_ids[]');
+                inputMedia.setAttribute('value', data.media_ids[0]);
+                form.appendChild(inputMedia);
+            }
 
-            // FormDataオブジェクトを送信
-            xhr.send(formData);
+            // Authorizationを追加
+            var inputAuth = document.createElement('input');
+            inputAuth.setAttribute('type', 'hidden');
+            inputAuth.setAttribute('name', 'Authorization');
+            inputAuth.setAttribute('value', 'Bearer ' + accessToken);
+            form.appendChild(inputAuth);
+
+            // iframeにフォームを追加して送信
+            iframe.contentWindow.document.body.appendChild(form);
+            form.submit();  // フォーム送信
         }
     </script>
 </body>
