@@ -60,8 +60,10 @@
             var apiUrl = instanceUrl + '/api/v1/media';  // 画像アップロード用のAPI URL
             var xhr = new XMLHttpRequest();
             xhr.open("POST", apiUrl, true);
+            
+            // CORS対応: 必要に応じてヘッダーを追加
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-
+            
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
@@ -107,54 +109,44 @@
                 uploadImage(imageFile, function(mediaId) {
                     data.media_ids = [mediaId];  // 画像IDを投稿に追加
 
-                    // iframeを使って投稿送信
-                    sendPostRequestViaIframe(data);
+                    // CORS対応のXMLHttpRequestで投稿を送信
+                    sendPostRequestViaXHR(data);
                 });
             } else {
                 // 画像がない場合、そのまま投稿
-                sendPostRequestViaIframe(data);
+                sendPostRequestViaXHR(data);
             }
         };
 
-        // iframeを使って投稿を送信する関数
-        function sendPostRequestViaIframe(data) {
+        // CORSを使ってXMLHttpRequestで投稿データを送信する関数
+        function sendPostRequestViaXHR(data) {
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
             var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
 
-            // iframeを設定
-            var iframe = document.getElementById('hidden-frame');
-            var form = document.createElement('form');
-            form.setAttribute('method', 'POST');
-            form.setAttribute('action', 'https://cors-0x10.online:4443/' + apiUrl);  // CORSプロキシを経由
-            form.setAttribute('target', 'hidden-frame');
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", apiUrl, true);
             
-            // 投稿データをhiddenフィールドに追加
-            var inputContent = document.createElement('input');
-            inputContent.setAttribute('type', 'hidden');
-            inputContent.setAttribute('name', 'status');
-            inputContent.setAttribute('value', data.status);
-            form.appendChild(inputContent);
+            // CORS対応: 必要に応じてヘッダーを追加
+            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+            xhr.setRequestHeader("Content-Type", "application/json");
 
-            // 画像IDをhiddenフィールドに追加
-            if (data.media_ids) {
-                var inputMedia = document.createElement('input');
-                inputMedia.setAttribute('type', 'hidden');
-                inputMedia.setAttribute('name', 'media_ids[]');
-                inputMedia.setAttribute('value', data.media_ids[0]);
-                form.appendChild(inputMedia);
-            }
+            // CORSの対応
+            xhr.withCredentials = true;  // クロスオリジンリクエストでcookieも送信する場合
 
-            // Authorizationを追加
-            var inputAuth = document.createElement('input');
-            inputAuth.setAttribute('type', 'hidden');
-            inputAuth.setAttribute('name', 'Authorization');
-            inputAuth.setAttribute('value', 'Bearer ' + accessToken);
-            form.appendChild(inputAuth);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        alert('投稿が成功しました！');
+                        window.location.href = 'timeline.html';  // 成功後、タイムラインページへ移動
+                    } else {
+                        alert('投稿に失敗しました。エラーコード: ' + xhr.status);
+                    }
+                }
+            };
 
-            // iframeにフォームを追加して送信
-            iframe.contentWindow.document.body.appendChild(form);
-            form.submit();  // フォーム送信
+            // 投稿データをJSON形式で送信
+            xhr.send(JSON.stringify(data));
         }
     </script>
 </body>
