@@ -48,7 +48,7 @@
         function fetchPosts() {
             var apiUrl = instanceUrl + "/api/v1/timelines/public";
             //var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
-            var proxyUrl = "https://cors-0x10.online/";
+            var proxyUrl = "https://cors-0x10.online:4443/";
 
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + apiUrl, true);
