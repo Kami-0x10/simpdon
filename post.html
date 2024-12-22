@@ -3,15 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="apple-touch-icon" href="./ico/simpdon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="./ico/simpdon.ico">
-    <meta name="msapplication-TileImage" content="./ico/simpdon.ico">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <link rel="icon" href="./ico/simpdon.ico">
-    <script src="./js/json2.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新しい投稿 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
+    <script src="./js/json2.js"></script>
+    <link rel="icon" href="./ico/simpdon.ico">
 </head>
 
 <body>
@@ -21,55 +17,52 @@
             <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
             <input type="file" id="image" accept="image/*">
             <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
-            <!-- 追加: timeline.htmlに戻るボタン -->
             <a href="timeline.html" class="button">タイムラインに戻る</a>
         </div>
     </div>
 
-    <!-- iframeを追加 -->
-    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
-
     <script>
+        // Cookieから情報を取得
         function getCookie(name) {
             var nameEq = name + "=";
             var ca = document.cookie.split(';');
             for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].replace(/^\s+/, ''); // 前後の空白を削除
+                var c = ca[i].replace(/^\s+/, '');
                 if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
             }
             return "";
         }
 
-        // 画像をBase64形式に変換する関数
+        // 画像をBase64に変換
         function convertToBase64(file, callback) {
             var reader = new FileReader();
-            reader.onloadend = function() {
+            reader.onloadend = function () {
                 callback(reader.result.split(',')[1]);  // Base64文字列（`data:image/*;base64,`部分を除去）
             };
             reader.readAsDataURL(file);
         }
 
-        // 画像をアップロードして、そのメディアIDを取得する関数
+        // CORSプロキシを使用して画像アップロード
         function uploadImage(imageFile, callback) {
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
 
+            var corsProxyUrl = 'https://cors-0x10.online:4443/';  // CORSプロキシ
+            var apiUrl = instanceUrl + '/api/v1/media';  // 画像アップロード用API URL
+
             var formData = new FormData();
             formData.append('file', imageFile);
 
-            var apiUrl = instanceUrl + '/api/v1/media';  // 画像アップロード用のAPI URL
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", apiUrl, true);
-            
-            // CORS対応: 必要に応じてヘッダーを追加
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-            
+            xhr.open('POST', corsProxyUrl + apiUrl, true);  // CORSプロキシを経由
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         var response = JSON.parse(xhr.responseText);
                         if (response.id) {
-                            callback(response.id);  // 成功した場合、画像IDをコールバックで返す
+                            callback(response.id);  // 画像IDをコールバックで返す
                         } else {
                             alert('画像のアップロードに失敗しました');
                         }
@@ -79,12 +72,12 @@
                 }
             };
 
-            xhr.send(formData);  // 画像データを送信
+            xhr.send(formData);  // 画像を送信
         }
 
         // 投稿ボタンがクリックされたとき
         document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
+            var content = document.getElementById('content').value.trim();
             var imageFile = document.getElementById('image').files[0];  // 画像ファイルを取得
 
             if (!content && !imageFile) {
@@ -106,47 +99,47 @@
 
             if (imageFile) {
                 // 画像がある場合、先にアップロードしてそのIDを取得
-                uploadImage(imageFile, function(mediaId) {
+                uploadImage(imageFile, function (mediaId) {
                     data.media_ids = [mediaId];  // 画像IDを投稿に追加
 
-                    // CORS対応のXMLHttpRequestで投稿を送信
-                    sendPostRequestViaXHR(data);
+                    // 投稿データを送信
+                    sendPostRequestViaCorsProxy(data);
                 });
             } else {
                 // 画像がない場合、そのまま投稿
-                sendPostRequestViaXHR(data);
+                sendPostRequestViaCorsProxy(data);
             }
         };
 
-        // CORSを使ってXMLHttpRequestで投稿データを送信する関数
-        function sendPostRequestViaXHR(data) {
+        // CORSプロキシを通して投稿データを送信する関数
+        function sendPostRequestViaCorsProxy(data) {
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
-            var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
+            var corsProxyUrl = 'https://cors-0x10.online:4443/';  // CORSプロキシのURL
+            var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿APIのURL
 
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", apiUrl, true);
-            
-            // CORS対応: 必要に応じてヘッダーを追加
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-            xhr.setRequestHeader("Content-Type", "application/json");
-
-            // CORSの対応
-            xhr.withCredentials = true;  // クロスオリジンリクエストでcookieも送信する場合
+            xhr.open('POST', corsProxyUrl + apiUrl, true);  // CORSプロキシを経由
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        alert('投稿が成功しました！');
-                        window.location.href = 'timeline.html';  // 成功後、タイムラインページへ移動
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.id) {
+                            alert('投稿が成功しました');
+                            window.location.href = 'timeline.html';  // タイムラインにリダイレクト
+                        } else {
+                            alert('投稿に失敗しました');
+                        }
                     } else {
                         alert('投稿に失敗しました。エラーコード: ' + xhr.status);
                     }
                 }
             };
 
-            // 投稿データをJSON形式で送信
-            xhr.send(JSON.stringify(data));
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(data));  // 投稿データをJSONとして送信
         }
     </script>
 </body>
