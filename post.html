@@ -26,7 +26,6 @@
         </div>
     </div>
 
-    <!-- iframeを追加 -->
     <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
 
     <script>
@@ -40,44 +39,34 @@
             return "";
         }
 
-        // 画像をBase64形式に変換する関数
-        function convertToBase64(file, callback) {
-            var reader = new FileReader();
-            reader.onloadend = function() {
-                callback(reader.result.split(',')[1]);  // Base64文字列（`data:image/*;base64,`部分を除去）
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // 画像をアップロードして、そのメディアIDを取得する関数
-        function uploadImage(imageFile, callback) {
+        // 画像アップロードをフォームで行う方法
+        function uploadImageWithForm(imageFile, callback) {
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
+            
+            // アップロード用フォームを作成
+            var form = document.createElement('form');
+            form.action = instanceUrl + '/api/v1/media';  // Mastodonのメディアアップロードエンドポイント
+            form.method = 'POST';
+            form.target = 'hidden-frame';  // iframeに結果を表示させる
 
-            var formData = new FormData();
-            formData.append('file', imageFile);
+            // フォームに画像を追加
+            var inputFile = document.createElement('input');
+            inputFile.type = 'file';
+            inputFile.name = 'file';
+            inputFile.files = [imageFile];  // 画像ファイルを設定
+            form.appendChild(inputFile);
 
-            var apiUrl = instanceUrl + '/api/v1/media';  // 画像アップロード用のAPI URL
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", apiUrl, true);
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+            // アクセストークンを追加（Authorizationヘッダーが使えないのでクエリパラメータで）
+            var tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'access_token';
+            tokenInput.value = accessToken;
+            form.appendChild(tokenInput);
 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.id) {
-                            callback(response.id);  // 成功した場合、画像IDをコールバックで返す
-                        } else {
-                            alert('画像のアップロードに失敗しました');
-                        }
-                    } else {
-                        alert('画像のアップロードに失敗しました。エラーコード: ' + xhr.status);
-                    }
-                }
-            };
-
-            xhr.send(formData);  // 画像データを送信
+            // フォームをDOMに追加して送信
+            document.body.appendChild(form);
+            form.submit();
         }
 
         // 投稿ボタンがクリックされたとき
@@ -103,8 +92,8 @@
             var data = { status: content };
 
             if (imageFile) {
-                // 画像がある場合、先にアップロードしてそのIDを取得
-                uploadImage(imageFile, function(mediaId) {
+                // 画像がある場合、フォームでアップロード
+                uploadImageWithForm(imageFile, function(mediaId) {
                     data.media_ids = [mediaId];  // 画像IDを投稿に追加
 
                     // 投稿を送信
@@ -147,4 +136,5 @@
         }
     </script>
 </body>
+
 </html>
