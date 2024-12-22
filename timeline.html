@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -14,7 +15,9 @@
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
+
         <div id="posts" class="posts"></div>
+
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -93,14 +96,11 @@
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function (attachment) {
-                        // 画像がwebp形式ならエラーメッセージを表示
-                        if (attachment.url.endsWith('.webp')) {
-                            return '<p>画像の読み込みに失敗しました。</p>';
-                        }
                         return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
                     }).join('');
                 }
 
+                
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
