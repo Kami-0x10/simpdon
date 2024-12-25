@@ -70,10 +70,18 @@
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         try {
-                            var data = JSON.parse(xhr.responseText);
+                            // JSONパースエラーに対応
+                            var data = null;
+                            try {
+                                data = JSON.parse(xhr.responseText);
+                            } catch (e) {
+                                console.error("JSON解析エラー:", e);
+                                document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                                return;
+                            }
                             displayPosts(data);
                         } catch (e) {
-                            console.error("JSON解析エラー:", e);
+                            console.error("エラー:", e);
                             document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                         }
                     } else {
