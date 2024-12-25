@@ -15,15 +15,14 @@
     <div class="container">
         <h1>投稿一覧</h1>
 
-
-        <div id="posts" class="posts"></div>
-
         <!-- メニューの追加 -->
         <div class="menu">
             <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> |
             <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a>
         </div>
-        
+
+        <div id="posts" class="posts"></div>
+
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -103,6 +102,7 @@
                 postElement.classList.add('post');
 
                 var username = post.account.acct;
+                var avatarUrl = post.account.avatar;  // プロフィール画像のURL
                 var content = post.content;
 
                 // 画像がある場合、その画像を表示
@@ -117,7 +117,15 @@
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
+                // プロフィール画像とユーザーネームを含むHTMLを作成
+                postElement.innerHTML = `
+                    <div class="post-header">
+                        <img src="${avatarUrl}" alt="プロフィール画像" class="profile-image" />
+                        <h2>@${username}</h2>
+                    </div>
+                    <p>${emojiContent}</p>
+                    ${images}
+                `;
                 postsContainer.appendChild(postElement);
             });
         }
