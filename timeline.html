@@ -1,4 +1,4 @@
-　<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -113,7 +113,8 @@
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
 
-            posts.forEach(function (post) {
+            for (var i = 0; i < posts.length; i++) {
+                var post = posts[i];
                 var postElement = document.createElement('div');
                 postElement.classList.add('post');
 
@@ -122,23 +123,24 @@
 
                 // ユーザーのアイコンを取得
                 var avatarUrl = post.account.avatar;
-                var avatarImg = avatarUrl ? `<img src="${avatarUrl}" alt="@${username}のアイコン" class="user-avatar" />` : '';
+                var avatarImg = avatarUrl ? '<img src="' + avatarUrl + '" alt="@' + username + 'のアイコン" class="user-avatar" />' : '';
 
                 // 画像がある場合、その画像を表示
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
-                    images = post.media_attachments.map(function (attachment) {
+                    for (var j = 0; j < post.media_attachments.length; j++) {
+                        var attachment = post.media_attachments[j];
                         if (attachment.url.endsWith('.webp')) {
                             // WebP画像ならPNGに変換
                             convertWebPToPNG(attachment.url, function(pngDataUrl) {
-                                var imgElement = `<img src="${pngDataUrl}" alt="画像" class="post-image" />`;
+                                var imgElement = '<img src="' + pngDataUrl + '" alt="画像" class="post-image" />';
                                 postsContainer.innerHTML += imgElement;
                             });
                         } else {
                             // WebP以外の画像はそのまま表示
-                            return `<img src="${attachment.url}" alt="画像" class="post-image" />`;
+                            images += '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
                         }
-                    }).join('');
+                    }
                 }
 
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
@@ -154,7 +156,7 @@
                     ${images}
                 `;
                 postsContainer.appendChild(postElement);
-            });
+            }
         }
 
         // 初期表示はHome TLを表示
