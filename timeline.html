@@ -91,6 +91,24 @@
             xhr.send();
         }
 
+        // 画像をBase64でPNGに変換して表示する関数
+        function convertWebPToPNG(webpUrl, callback) {
+            var img = new Image();
+            img.src = webpUrl;
+            img.onload = function() {
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                var pngDataUrl = canvas.toDataURL('image/png');
+                callback(pngDataUrl);
+            };
+            img.onerror = function() {
+                callback(webpUrl); // WebP画像の変換に失敗した場合、元のURLをそのまま返す
+            };
+        }
+
         // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
@@ -111,7 +129,16 @@
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function (attachment) {
-                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                        if (attachment.url.endsWith('.webp')) {
+                            // WebP画像ならPNGに変換
+                            convertWebPToPNG(attachment.url, function(pngDataUrl) {
+                                var imgElement = `<img src="${pngDataUrl}" alt="画像" class="post-image" />`;
+                                postsContainer.innerHTML += imgElement;
+                            });
+                        } else {
+                            // WebP以外の画像はそのまま表示
+                            return `<img src="${attachment.url}" alt="画像" class="post-image" />`;
+                        }
                     }).join('');
                 }
 
