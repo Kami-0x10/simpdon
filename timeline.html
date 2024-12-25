@@ -59,6 +59,11 @@
                 apiUrl = "/api/v1/timelines/home";
             }
 
+            if (!apiUrl) {
+                console.error("API URLが設定されていません");
+                return;
+            }
+
             var xhr = new XMLHttpRequest();
             xhr.open("GET", instanceUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
@@ -167,11 +172,14 @@
         }
 
         // イベントリスナーを使用してリンクの動作を設定
-        document.getElementById('home-link').addEventListener('click', function() {
+        var homeLink = document.getElementById('home-link');
+        var publicLink = document.getElementById('public-link');
+
+        homeLink.addEventListener('click', function() {
             setTimeline('home');
         });
 
-        document.getElementById('public-link').addEventListener('click', function() {
+        publicLink.addEventListener('click', function() {
             setTimeline('public');
         });
     </script>
