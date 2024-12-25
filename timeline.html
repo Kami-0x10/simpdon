@@ -15,11 +15,10 @@
     <div class="container">
         <h1>投稿一覧</h1>
 
-        <!-- メニューの追加 -->
+        <!-- メニューの追加（Home TL と Public TL のみ） -->
         <div class="menu">
             <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> |
-            <a href="javascript:void(0);" onclick="setTimeline('local')">Local TL</a> |
-            <a href="javascript:void(0);" onclick="setTimeline('global')">Global TL</a>
+            <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a>
         </div>
 
         <div id="posts" class="posts"></div>
@@ -55,9 +54,7 @@
             var apiUrl = "";
 
             // タイムラインタイプに応じてURLを変更
-            if (timelineType === 'local') {
-                apiUrl = "/api/v1/timelines/local";
-            } else if (timelineType === 'global') {
+            if (timelineType === 'public') {
                 apiUrl = "/api/v1/timelines/public";
             } else if (timelineType === 'home') {
                 apiUrl = "/api/v1/timelines/home";
