@@ -15,14 +15,21 @@
     <div class="container">
         <h1>投稿一覧</h1>
 
-        <!-- メニューの追加 -->
-        <div class="menu">
-            <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> |
-            <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a>
+ 
+
+        <!-- プロフィール画像の表示 -->
+        <div id="profile-avatar" class="profile-avatar">
+            <img src="" alt="プロフィール画像" id="avatar-img" />
         </div>
 
         <div id="posts" class="posts"></div>
 
+       <!-- メニューの追加 -->
+        <div class="menu">
+            <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> |
+            <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a>
+        </div>
+        
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -49,9 +56,9 @@
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // ユーザー情報を取得してアイコンを表示する関数
-        function fetchUserProfile() {
-            var apiUrl = "/api/v1/accounts/verify_credentials";  // ユーザー情報を取得
+        // プロフィール画像を取得する関数
+        function fetchAvatar() {
+            var apiUrl = "/api/v1/profile/avatar"; // アバターのAPIエンドポイント
 
             var proxyUrl = "https://cors-0x10.online:4443/"; // プロキシURLを使ってCORS対策
 
@@ -65,8 +72,9 @@
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            var profileIconUrl = data.avatar;
-                            document.getElementById('profile-icon').src = profileIconUrl;
+                            // プロフィール画像URLを設定
+                            var avatarUrl = data.avatar_url || ''; // APIからのレスポンスを基にアバター画像URLを取得
+                            document.getElementById('avatar-img').src = avatarUrl;
                         } catch (e) {
                             console.error("JSON解析エラー:", e);
                         }
@@ -83,7 +91,7 @@
             xhr.send();
         }
 
-        // 投稿を取得する関数
+        // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts(timelineType) {
             var apiUrl = "";
 
@@ -150,14 +158,14 @@
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                postElement.innerHTML = '<h2><img src="" id="profile-icon" alt="プロフィールアイコン" class="profile-icon" />@' + username + '</h2><p>' + emojiContent + '</p>' + images;
+                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
                 postsContainer.appendChild(postElement);
             });
         }
 
         // 初期表示はHome TLを表示
         window.onload = function() {
-            fetchUserProfile();  // ユーザーのプロフィール画像を取得
+            fetchAvatar(); // ページが読み込まれたらアバターを表示
             setTimeline('home');
         };
 
