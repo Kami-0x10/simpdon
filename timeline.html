@@ -92,22 +92,6 @@
             xhr.send();
         }
 
-        // WebP画像をBase64でPNGに変換する関数（CORS対応サーバーを使用）
-        function convertWebPToPNG(url, callback) {
-            var apiUrl = `https://cors-0x10.online:4443/convert?url=${encodeURIComponent(url)}&format=png`; // CORSサーバーを使用して画像を変換
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", apiUrl, true);
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    callback(xhr.responseText); // Base64データをコールバックで受け取る
-                } else {
-                    console.error('画像変換エラー:', xhr.status);
-                    callback(null); // エラーの場合はnullを返す
-                }
-            };
-            xhr.send();
-        }
-
         // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
@@ -118,32 +102,18 @@
                 postElement.classList.add('post');
 
                 var username = post.account.acct;
-                var avatarUrl = post.account.avatar;  // プロフィール画像のURL
                 var content = post.content;
 
                 // 画像がある場合、その画像を表示
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function (attachment) {
-                        if (attachment.url.endsWith('.webp')) {
-                            // WebP画像の場合、Base64に変換してPNGとして表示
-                            convertWebPToPNG(attachment.url, function(base64) {
-                                if (base64) {
-                                    images += `<img src="data:image/png;base64,${base64}" alt="画像" class="post-image" />`;
-                                    postElement.innerHTML = `
-                                        <div class="post-header">
-                                            <img src="${avatarUrl}" alt="プロフィール画像" class="profile-image" />
-                                            <h2>@${username}</h2>
-                                        </div>
-                                        <p>${content}</p>
-                                        ${images}
-                                    `;
-                                }
-                            });
-                        } else {
-                            // WebP以外の画像はそのまま表示
-                            return `<img src="${attachment.url}" alt="画像" class="post-image" />`;
+                        // WebP形式をPNGに変換する処理
+                        var imageUrl = attachment.url;
+                        if (imageUrl.endsWith('.webp')) {
+                            imageUrl = imageUrl.replace('.webp', '.png'); // .webpを.pngに変換
                         }
+                        return '<img src="' + imageUrl + '" alt="画像" class="post-image" />';
                     }).join('');
                 }
 
@@ -151,15 +121,7 @@
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                // プロフィール画像とユーザーネームを含むHTMLを作成
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        <img src="${avatarUrl}" alt="プロフィール画像" class="profile-image" />
-                        <h2>@${username}</h2>
-                    </div>
-                    <p>${emojiContent}</p>
-                    ${images}
-                `;
+                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
                 postsContainer.appendChild(postElement);
             });
         }
