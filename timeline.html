@@ -58,7 +58,7 @@
                 apiUrl = "/api/v1/timelines/home";
             } else if (timelineType === 'public') {
                 apiUrl = "/api/v1/timelines/public";
-            } 
+            }
 
             var proxyUrl = "https://cors-0x10.online:4443/"; // プロキシURLを使ってCORS対策
 
@@ -102,7 +102,6 @@
                 postElement.classList.add('post');
 
                 var username = post.account.acct;
-                var avatarUrl = post.account.avatar;  // プロフィール画像のURL
                 var content = post.content;
 
                 // 画像がある場合、その画像を表示
@@ -117,15 +116,7 @@
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                // プロフィール画像とユーザーネームを含むHTMLを作成
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        <img src="${avatarUrl}" alt="プロフィール画像" class="profile-image" />
-                        <h2>@${username}</h2>
-                    </div>
-                    <p>${emojiContent}</p>
-                    ${images}
-                `;
+                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
                 postsContainer.appendChild(postElement);
             });
         }
