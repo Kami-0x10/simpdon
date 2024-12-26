@@ -148,6 +148,7 @@ a:hover {
     border-radius: 50%;  /* 丸く表示 */
     margin-right: 10px;  /* ユーザー名との間にスペース */
     object-fit: cover;  /* 画像が枠に収まるように調整 */
+    position: relative;
 }
 
 /* 投稿画像のスタイル */
