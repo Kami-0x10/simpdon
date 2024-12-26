@@ -10,6 +10,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        /* 投稿のID（アカウント名）とアバターを横並びにするスタイル */
+        .post-header {
+            display: flex;
+            align-items: center;
+        }
+
+        .post-header img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .post-header h2 {
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -49,7 +67,7 @@
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿を取得する関数 (CORSの回避策として、proxyを使用)
+        // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts(timelineType) {
             var apiUrl = "";
 
@@ -60,7 +78,7 @@
                 apiUrl = "/api/v1/timelines/public";
             } 
 
-            var proxyUrl = "https://cors-0x10.online:4443/"; // CORS対策のためプロキシURLを使う
+            var proxyUrl = "https://cors-0x10.online:4443/"; // プロキシURLを使ってCORS対策
 
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
@@ -97,18 +115,13 @@
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
 
-            if (!posts || posts.length === 0) {
-                postsContainer.innerHTML = '<p>投稿がありません。</p>';
-                return;
-            }
-
             posts.forEach(function (post) {
                 var postElement = document.createElement('div');
                 postElement.classList.add('post');
 
                 var username = post.account.acct;
+                var avatarUrl = post.account.avatar; // アバターのURL
                 var content = post.content;
-                var avatarUrl = post.account.avatar; // アバターURL
 
                 // 画像がある場合、その画像を表示
                 var images = '';
@@ -122,15 +135,11 @@
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                // 投稿にユーザーのアバターを表示
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        <img src="${avatarUrl}" alt="Avatar" class="avatar" />
-                        <h2>@${username}</h2>
-                    </div>
-                    <p>${emojiContent}</p>
-                    ${images}
-                `;
+                postElement.innerHTML = '<div class="post-header">' +
+                                        '<img src="' + avatarUrl + '" alt="Avatar">' + 
+                                        '<h2>@' + username + '</h2>' +
+                                        '</div>' + 
+                                        '<p>' + emojiContent + '</p>' + images;
                 postsContainer.appendChild(postElement);
             });
         }
