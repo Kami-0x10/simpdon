@@ -186,3 +186,12 @@ a:hover {
     height: auto; /* 高さをコンテンツに合わせて調整 */
     overflow: hidden; /* 見切れ防止 */
 }
+
+/* ユーザーアイコンのスタイル */
+.user-avatar {
+    width: 30px;  /* アイコンの幅を小さく */
+    height: 30px;  /* アイコンの高さを小さく */
+    border-radius: 50%;  /* 丸く表示 */
+    margin-right: 10px;  /* ユーザー名との間にスペース */
+    object-fit: cover;  /* 画像が枠に収まるように調整 */
+}
