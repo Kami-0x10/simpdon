@@ -2,6 +2,11 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <link rel="apple-touch-icon" href="./ico/simpdon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="./ico/simpdon.ico">
+    <meta name="msapplication-TileImage" content="./ico/simpdon.ico">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <link rel="icon" href="./ico/simpdon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
@@ -9,6 +14,12 @@
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
+
+        <!-- メニューの追加 -->
+        <div class="menu">
+            <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> |
+            <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a>
+        </div>
 
         <div id="posts" class="posts"></div>
 
@@ -39,12 +50,20 @@
         }
 
         // 投稿を取得する関数 (XMLHttpRequestを使用)
-        function fetchPosts() {
-            var apiUrl = instanceUrl + "/api/v1/timelines/public";
-            var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
+        function fetchPosts(timelineType) {
+            var apiUrl = "";
+
+            // タイムラインタイプに応じてURLを変更
+            if (timelineType === 'home') {
+                apiUrl = "/api/v1/timelines/home";
+            } else if (timelineType === 'public') {
+                apiUrl = "/api/v1/timelines/public";
+            } 
+
+            var proxyUrl = "https://cors-0x10.online:4443/"; // プロキシURLを使ってCORS対策
 
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", proxyUrl + apiUrl, true);
+            xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
@@ -73,23 +92,6 @@
             xhr.send();
         }
 
-        // WebP画像をPNGに変換する関数
-        function convertWebPToPNG(webpUrl, callback) {
-            var img = new Image();
-            img.onload = function() {
-                var canvas = document.createElement('canvas');
-                var ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                canvas.toBlob(function(blob) {
-                    var url = URL.createObjectURL(blob);
-                    callback(url);
-                }, 'image/png');
-            };
-            img.src = webpUrl;
-        }
-
         // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
@@ -106,20 +108,10 @@
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function (attachment) {
-                        var imageUrl = attachment.url;
-                        // WebP画像をPNGに変換
-                        if (imageUrl.endsWith('.webp')) {
-                            convertWebPToPNG(imageUrl, function(pngUrl) {
-                                images += '<img src="' + pngUrl + '" alt="画像" class="post-image" />';
-                            });
-                        } else {
-                            images += '<img src="' + imageUrl + '" alt="画像" class="post-image" />';
-                        }
-                        return images;
+                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
                     }).join('');
                 }
 
-                // 絵文字を処理
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
@@ -129,8 +121,15 @@
             });
         }
 
-        // ページ読み込み時に投稿を取得
-        window.onload = fetchPosts;
+        // 初期表示はHome TLを表示
+        window.onload = function() {
+            setTimeline('home');
+        };
+
+        // タイムラインを設定する関数
+        function setTimeline(timelineType) {
+            fetchPosts(timelineType);
+        }
     </script>
 </body>
 </html>
