@@ -108,11 +108,8 @@
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function (attachment) {
-                        // WebP形式をPNGに変換する処理
-                        var imageUrl = attachment.url;
-                        if (imageUrl.endsWith('.webp')) {
-                            imageUrl = imageUrl.replace('.webp', '.png'); // .webpを.pngに変換
-                        }
+                        // URLが拡張子を持つ場合、その拡張子を.pngに変換
+                        let imageUrl = attachment.url.replace(/\.(jpg|jpeg|gif|bmp|webp)$/i, '.png');
                         return '<img src="' + imageUrl + '" alt="画像" class="post-image" />';
                     }).join('');
                 }
