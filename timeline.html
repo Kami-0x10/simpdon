@@ -41,6 +41,25 @@
             return "";
         }
 
+        // WebP画像をPNG画像に変換する関数
+        function convertWebPToPNG(imageUrl, callback) {
+            var img = new Image();
+            img.src = imageUrl;
+            img.onload = function() {
+                // WebP形式が読み込めた場合、画像をcanvasで処理
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                var pngDataUrl = canvas.toDataURL('image/png');
+                callback(pngDataUrl); // PNG形式のデータURLを返す
+            };
+            img.onerror = function() {
+                callback(imageUrl); // 画像読み込みエラーの場合、元のURLを返す
+            };
+        }
+
         // ログイン状態を確認
         var instanceUrl = getCookie('instanceUrl');
         var accessToken = getCookie('accessToken');
@@ -108,7 +127,20 @@
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function (attachment) {
-                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                        var imageUrl = attachment.url;
+
+                        // WebP画像かどうかを判定して、WebPの場合はPNGに変換
+                        if (imageUrl.endsWith('.webp')) {
+                            // WebP形式をPNGに変換
+                            convertWebPToPNG(imageUrl, function(pngUrl) {
+                                var imgTag = '<img src="' + pngUrl + '" alt="画像" class="post-image" />';
+                                // 画像を動的に追加
+                                postElement.innerHTML += imgTag;
+                            });
+                        } else {
+                            // WebPでない場合、そのまま表示
+                            return '<img src="' + imageUrl + '" alt="画像" class="post-image" />';
+                        }
                     }).join('');
                 }
 
