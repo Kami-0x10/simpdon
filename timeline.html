@@ -9,13 +9,9 @@
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
+
         <div id="posts" class="posts"></div>
 
-        <div class="menu">
-            <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> |
-            <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a>
-        </div>
-        
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -23,7 +19,7 @@
     </div>
 
     <script>
-        // Cookieから値を取得
+        // CookieからインスタンスURLとアクセストークンを取得する関数
         function getCookie(name) {
             var nameEq = name + "=";
             var ca = document.cookie.split(';');
@@ -34,104 +30,107 @@
             return "";
         }
 
-        // 初期設定
+        // ログイン状態を確認
         var instanceUrl = getCookie('instanceUrl');
         var accessToken = getCookie('accessToken');
+
         if (!instanceUrl || !accessToken) {
-            window.location.href = 'login.html';
+            window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // WebP画像をチェックする関数
-        function supportsWebP(callback) {
-            var webP = new Image();
-            webP.onload = webP.onerror = function () {
-                callback(webP.height === 2);
-            };
-            webP.src = "data:image/webp;base64,UklGRhYAAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=";
-        }
-
-        // 投稿を取得
-        function fetchPosts(timelineType) {
-            var apiUrl = timelineType === 'home' ? "/api/v1/timelines/home" : "/api/v1/timelines/public";
-            var proxyUrl = "https://cors-0x10.online:4443/"; // iOS 6対応のCORSプロキシ
+        // 投稿を取得する関数 (XMLHttpRequestを使用)
+        function fetchPosts() {
+            var apiUrl = instanceUrl + "/api/v1/timelines/public";
+            var proxyUrl = "https://cors-anywhere.herokuapp.com/";  // cors-anywhereを使うためのプロキシURL
 
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
+            xhr.open("GET", proxyUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
-            xhr.onreadystatechange = function () {
+            xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            supportsWebP(function (isSupported) {
-                                displayPosts(data, isSupported);
-                            });
+                            displayPosts(data);
                         } catch (e) {
+                            console.error("JSON解析エラー:", e);
                             document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                         }
                     } else {
+                        console.error('ネットワークエラー:', xhr.status, xhr.statusText);
                         document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                     }
                 }
             };
 
-            xhr.onerror = function () {
+            xhr.onerror = function() {
+                console.error('リクエストエラーが発生しました');
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
             };
 
             xhr.send();
         }
 
-        // 投稿を表示
-        function displayPosts(posts, supportsWebP) {
+        // WebP画像をPNGに変換する関数
+        function convertWebPToPNG(webpUrl, callback) {
+            var img = new Image();
+            img.onload = function() {
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob(function(blob) {
+                    var url = URL.createObjectURL(blob);
+                    callback(url);
+                }, 'image/png');
+            };
+            img.src = webpUrl;
+        }
+
+        // 投稿を表示する関数
+        function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
-            postsContainer.innerHTML = '';
+            postsContainer.innerHTML = ''; // 既存の投稿をクリア
 
-            for (var i = 0; i < posts.length; i++) {
-                var post = posts[i];
+            posts.forEach(function (post) {
                 var postElement = document.createElement('div');
-                postElement.className = 'post';
+                postElement.classList.add('post');
 
-                var username = post.account ? post.account.acct : '不明';
-                var content = post.content || '';
+                var username = post.account.acct;
+                var content = post.content;
 
-                // 投稿内容を追加
-                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + content + '</p>';
-                
-                // 画像を追加
+                // 画像がある場合、その画像を表示
+                var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
-                    for (var j = 0; j < post.media_attachments.length; j++) {
-                        var attachment = post.media_attachments[j];
-                        var imgElement = document.createElement('img');
-
-                        // WebP非対応の場合にJPEGやPNGにフォールバック
-                        if (!supportsWebP && attachment.url.endsWith('.webp')) {
-                            imgElement.src = attachment.url.replace('.webp', '.jpg'); // サーバー側でJPEGに変換済みの画像を提供
+                    images = post.media_attachments.map(function (attachment) {
+                        var imageUrl = attachment.url;
+                        // WebP画像をPNGに変換
+                        if (imageUrl.endsWith('.webp')) {
+                            convertWebPToPNG(imageUrl, function(pngUrl) {
+                                images += '<img src="' + pngUrl + '" alt="画像" class="post-image" />';
+                            });
                         } else {
-                            imgElement.src = attachment.url || '';
+                            images += '<img src="' + imageUrl + '" alt="画像" class="post-image" />';
                         }
-
-                        imgElement.alt = "画像";
-                        imgElement.className = 'post-image';
-                        postElement.appendChild(imgElement);
-                    }
+                        return images;
+                    }).join('');
                 }
 
+                // 絵文字を処理
+                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
+                    return '<span class="emoji">' + emoji + '</span>';
+                });
+
+                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
                 postsContainer.appendChild(postElement);
-            }
+            });
         }
 
-        // 初期タイムライン設定
-        function setTimeline(timelineType) {
-            fetchPosts(timelineType);
-        }
-
-        // 初期表示
-        window.onload = function () {
-            setTimeline('home');
-        };
+        // ページ読み込み時に投稿を取得
+        window.onload = fetchPosts;
     </script>
 </body>
 </html>
