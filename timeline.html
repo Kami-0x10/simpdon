@@ -49,7 +49,41 @@
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿を取得する関数 (XMLHttpRequestを使用)
+        // ユーザー情報を取得してアイコンを表示する関数
+        function fetchUserProfile() {
+            var apiUrl = "/api/v1/accounts/verify_credentials";  // ユーザー情報を取得
+
+            var proxyUrl = "https://cors-0x10.online:4443/"; // プロキシURLを使ってCORS対策
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            var profileIconUrl = data.avatar;
+                            document.getElementById('profile-icon').src = profileIconUrl;
+                        } catch (e) {
+                            console.error("JSON解析エラー:", e);
+                        }
+                    } else {
+                        console.error('ネットワークエラー:', xhr.status, xhr.statusText);
+                    }
+                }
+            };
+
+            xhr.onerror = function() {
+                console.error('リクエストエラーが発生しました');
+            };
+
+            xhr.send();
+        }
+
+        // 投稿を取得する関数
         function fetchPosts(timelineType) {
             var apiUrl = "";
 
@@ -116,13 +150,14 @@
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                postElement.innerHTML = '<h2>@' + username + '</h2><p>' + emojiContent + '</p>' + images;
+                postElement.innerHTML = '<h2><img src="" id="profile-icon" alt="プロフィールアイコン" class="profile-icon" />@' + username + '</h2><p>' + emojiContent + '</p>' + images;
                 postsContainer.appendChild(postElement);
             });
         }
 
         // 初期表示はHome TLを表示
         window.onload = function() {
+            fetchUserProfile();  // ユーザーのプロフィール画像を取得
             setTimeline('home');
         };
 
