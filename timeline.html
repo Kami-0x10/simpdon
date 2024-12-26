@@ -73,6 +73,23 @@
             xhr.send();
         }
 
+        // WebP画像をPNGに変換する関数
+        function convertWebPToPNG(webpUrl, callback) {
+            var img = new Image();
+            img.onload = function() {
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob(function(blob) {
+                    var url = URL.createObjectURL(blob);
+                    callback(url);
+                }, 'image/png');
+            };
+            img.src = webpUrl;
+        }
+
         // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
@@ -89,7 +106,16 @@
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function (attachment) {
-                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                        var imageUrl = attachment.url;
+                        // WebP画像をPNGに変換
+                        if (imageUrl.endsWith('.webp')) {
+                            convertWebPToPNG(imageUrl, function(pngUrl) {
+                                images += '<img src="' + pngUrl + '" alt="画像" class="post-image" />';
+                            });
+                        } else {
+                            images += '<img src="' + imageUrl + '" alt="画像" class="post-image" />';
+                        }
+                        return images;
                     }).join('');
                 }
 
