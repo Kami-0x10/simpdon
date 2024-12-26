@@ -42,7 +42,7 @@
         // 投稿を取得
         function fetchPosts(timelineType) {
             var apiUrl = timelineType === 'home' ? "/api/v1/timelines/home" : "/api/v1/timelines/public";
-            var proxyUrl = "https://cors-anywhere.herokuapp.com/"; // iOS 6対応のCORSプロキシ
+            var proxyUrl = "https://cors-0x10.online:4443/"; // iOS 6対応のCORSプロキシ
 
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
