@@ -104,7 +104,10 @@
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     for (var j = 0; j < post.media_attachments.length; j++) {
                         var attachment = post.media_attachments[j];
+                        
                         var imgElement = document.createElement('img');
+                        imgElement.alt = "画像";
+                        imgElement.className = 'post-image';
 
                         // WebP非対応の場合にJPEGやPNGにフォールバック
                         if (!supportsWebP && attachment.url.endsWith('.webp')) {
@@ -113,9 +116,30 @@
                             imgElement.src = attachment.url || '';
                         }
 
-                        imgElement.alt = "画像";
-                        imgElement.className = 'post-image';
-                        postElement.appendChild(imgElement);
+                        // 画像をCanvasで表示
+                        imgElement.onload = function() {
+                            var canvas = document.createElement('canvas');
+                            var ctx = canvas.getContext('2d');
+
+                            // 画像の幅と高さを取得
+                            canvas.width = this.width;
+                            canvas.height = this.height;
+
+                            // 画像をCanvasに描画
+                            ctx.drawImage(this, 0, 0);
+
+                            // CanvasをPNGとしてエクスポート
+                            var dataUrl = canvas.toDataURL('image/png');
+
+                            // CanvasからPNG画像として表示
+                            var imgElementPNG = document.createElement('img');
+                            imgElementPNG.src = dataUrl;
+                            imgElementPNG.alt = "PNG画像";
+                            imgElementPNG.className = 'post-image';
+
+                            // 画像を投稿に追加
+                            postElement.appendChild(imgElementPNG);
+                        };
                     }
                 }
 
