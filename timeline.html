@@ -41,25 +41,6 @@
             return "";
         }
 
-        // WebP画像をPNG画像に変換する関数
-        function convertWebPToPNG(imageUrl, callback) {
-            var img = new Image();
-            img.src = imageUrl;
-            img.onload = function() {
-                // WebP形式が読み込めた場合、画像をcanvasで処理
-                var canvas = document.createElement('canvas');
-                var ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                var pngDataUrl = canvas.toDataURL('image/png');
-                callback(pngDataUrl); // PNG形式のデータURLを返す
-            };
-            img.onerror = function() {
-                callback(imageUrl); // 画像読み込みエラーの場合、元のURLを返す
-            };
-        }
-
         // ログイン状態を確認
         var instanceUrl = getCookie('instanceUrl');
         var accessToken = getCookie('accessToken');
@@ -111,6 +92,22 @@
             xhr.send();
         }
 
+        // 画像URLをBase64エンコードする関数
+        function convertToBase64(url, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'arraybuffer';
+
+            xhr.onload = function() {
+                var byteArray = new Uint8Array(xhr.response);
+                var binaryString = String.fromCharCode.apply(null, byteArray);
+                var base64String = btoa(binaryString); // Base64エンコード
+                callback(base64String);
+            };
+
+            xhr.send();
+        }
+
         // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
@@ -123,23 +120,21 @@
                 var username = post.account.acct;
                 var content = post.content;
 
-                // 画像がある場合、その画像を表示
+                // 画像がある場合、その画像をBase64エンコードして表示
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     images = post.media_attachments.map(function (attachment) {
-                        var imageUrl = attachment.url;
-
-                        // WebP画像かどうかを判定して、WebPの場合はPNGに変換
-                        if (imageUrl.endsWith('.webp')) {
-                            // WebP形式をPNGに変換
-                            convertWebPToPNG(imageUrl, function(pngUrl) {
-                                var imgTag = '<img src="' + pngUrl + '" alt="画像" class="post-image" />';
-                                // 画像を動的に追加
-                                postElement.innerHTML += imgTag;
+                        if (attachment.url.endsWith('.webp')) {
+                            // WebP画像をBase64に変換
+                            convertToBase64(attachment.url, function(base64Image) {
+                                var base64Src = 'data:image/png;base64,' + base64Image;
+                                var imgElement = '<img src="' + base64Src + '" alt="画像" class="post-image" />';
+                                postElement.innerHTML += imgElement;
                             });
                         } else {
-                            // WebPでない場合、そのまま表示
-                            return '<img src="' + imageUrl + '" alt="画像" class="post-image" />';
+                            // 通常の画像はそのまま表示
+                            images = '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
+                            postElement.innerHTML += images;
                         }
                     }).join('');
                 }
