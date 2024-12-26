@@ -39,6 +39,15 @@
             window.location.href = 'login.html';
         }
 
+        // WebP画像をチェックする関数
+        function supportsWebP(callback) {
+            var webP = new Image();
+            webP.onload = webP.onerror = function () {
+                callback(webP.height === 2);
+            };
+            webP.src = "data:image/webp;base64,UklGRhYAAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=";
+        }
+
         // 投稿を取得
         function fetchPosts(timelineType) {
             var apiUrl = timelineType === 'home' ? "/api/v1/timelines/home" : "/api/v1/timelines/public";
@@ -54,7 +63,9 @@
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            displayPosts(data);
+                            supportsWebP(function (isSupported) {
+                                displayPosts(data, isSupported);
+                            });
                         } catch (e) {
                             document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                         }
@@ -72,7 +83,7 @@
         }
 
         // 投稿を表示
-        function displayPosts(posts) {
+        function displayPosts(posts, supportsWebP) {
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = '';
 
@@ -92,7 +103,14 @@
                     for (var j = 0; j < post.media_attachments.length; j++) {
                         var attachment = post.media_attachments[j];
                         var imgElement = document.createElement('img');
-                        imgElement.src = attachment.url || '';
+
+                        // WebP非対応の場合にJPEGやPNGにフォールバック
+                        if (!supportsWebP && attachment.url.endsWith('.webp')) {
+                            imgElement.src = attachment.url.replace('.webp', '.jpg'); // サーバー側でJPEGに変換済みの画像を提供
+                        } else {
+                            imgElement.src = attachment.url || '';
+                        }
+
                         imgElement.alt = "画像";
                         imgElement.className = 'post-image';
                         postElement.appendChild(imgElement);
