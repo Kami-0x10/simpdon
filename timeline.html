@@ -7,8 +7,7 @@
     <meta name="msapplication-TileImage" content="./ico/simpdon.ico">
     <meta name="msapplication-TileColor" content="#ffffff">
     <link rel="icon" href="./ico/simpdon.ico">
-    <!-- viewport調整: iOS6など古い端末にも対応 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投稿一覧 - Simpdon クライアント</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
@@ -50,7 +49,7 @@
             window.location.href = 'login.html'; // ログインしていなければログインページに遷移
         }
 
-        // 投稿を取得する関数 (XMLHttpRequestを使用)
+        // 投稿を取得する関数 (CORSの回避策として、proxyを使用)
         function fetchPosts(timelineType) {
             var apiUrl = "";
 
@@ -61,7 +60,7 @@
                 apiUrl = "/api/v1/timelines/public";
             } 
 
-            var proxyUrl = "https://cors-0x10.online:4443/"; // プロキシURLを使ってCORS対策
+            var proxyUrl = "https://cors-0x10.online:4443/"; // CORS対策のためプロキシURLを使う
 
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
@@ -97,6 +96,11 @@
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = ''; // 既存の投稿をクリア
+
+            if (!posts || posts.length === 0) {
+                postsContainer.innerHTML = '<p>投稿がありません。</p>';
+                return;
+            }
 
             posts.forEach(function (post) {
                 var postElement = document.createElement('div');
