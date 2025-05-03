@@ -1,91 +1,130 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新しい投稿</title>
-    <link rel="stylesheet" href="./css/styles.css">
+  <meta charset="UTF-8">
+  <title>新しい投稿</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+　<link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>新しい投稿</h1>
-        <div class="form">
-            <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
-            <input type="file" id="image" accept="image/*">
-            <button id="post-btn" class="button">投稿</button>
-            <a href="timeline.html" class="button">タイムラインに戻る</a>
-        </div>
+  <div class="container">
+    <h1>新しい投稿</h1>
+    <div class="form">
+      <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
+      <input type="file" id="image" accept="image/*">
+      <button class="button" onclick="submitPost()">投稿</button>
+      <a href="timeline.html" class="button">タイムラインに戻る</a>
     </div>
+  </div>
 
-    <script>
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-            return null;
-        }
+  <script>
+    function getCookie(name) {
+      var pairs = document.cookie.split(';');
+      for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i].trim().split('=');
+        if (pair[0] === name) return decodeURIComponent(pair[1]);
+      }
+      return null;
+    }
 
-        document.getElementById('post-btn').onclick = async function () {
-            const content = document.getElementById('content').value.trim();
-            const imageFile = document.getElementById('image').files[0];
+    function submitPost() {
+      var content = document.getElementById('content').value.trim();
+      var fileInput = document.getElementById('image');
+      var file = fileInput.files[0];
 
-            if (!content && !imageFile) {
-                alert('投稿内容または画像を入力してください');
-                return;
-            }
+      if (!content && !file) {
+        alert('投稿内容または画像を入力してください');
+        return;
+      }
 
-            const instanceUrl = getCookie('instance_url');
-            const accessToken = getCookie('access_token');
+      var instanceUrl = getCookie('instance_url');
+      var accessToken = getCookie('access_token');
+      if (!instanceUrl || !accessToken) {
+        alert('ログイン情報が取得できません');
+        return;
+      }
 
-            if (!instanceUrl || !accessToken) {
-                alert('ログイン情報がありません（Cookieが設定されていません）');
-                return;
-            }
-
-            const proxy = 'https://cors-0x10.online:4443/';
-            let mediaId = null;
-
-            try {
-                if (imageFile) {
-                    const mediaForm = new FormData();
-                    mediaForm.append('file', imageFile);
-
-                    const mediaRes = await fetch(proxy + instanceUrl + '/api/v2/media', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`
-                        },
-                        body: mediaForm
-                    });
-
-                    const mediaData = await mediaRes.json();
-                    if (!mediaRes.ok) throw new Error(mediaData.error || 'メディアアップロード失敗');
-
-                    mediaId = mediaData.id;
-                }
-
-                const statusForm = new FormData();
-                statusForm.append('status', content || ''); // 空投稿対策
-                if (mediaId) statusForm.append('media_ids[]', mediaId);
-
-                const postRes = await fetch(proxy + instanceUrl + '/api/v1/statuses', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    },
-                    body: statusForm
-                });
-
-                const postData = await postRes.json();
-                if (!postRes.ok) throw new Error(postData.error || '投稿に失敗しました');
-
-                alert('投稿が送信されました');
-                window.location.href = 'timeline.html';
-
-            } catch (error) {
-                alert('エラーが発生しました: ' + error.message);
-            }
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var base64data = e.target.result.split(',')[1]; // DataURLからbase64抽出
+          uploadMedia(base64data, file.type, content, instanceUrl, accessToken);
         };
-    </script>
+        reader.readAsDataURL(file);
+      } else {
+        postStatus(content, null, instanceUrl, accessToken);
+      }
+    }
+
+    function uploadMedia(base64, mimeType, content, instanceUrl, accessToken) {
+      var proxy = 'https://cors-0x10.online:4443/';
+      var url = proxy + instanceUrl + '/api/v2/media';
+
+      var boundary = '----WebKitFormBoundary' + Math.random().toString(36).substr(2);
+      var data = '';
+      data += '--' + boundary + '\r\n';
+      data += 'Content-Disposition: form-data; name="file"; filename="image.jpg"\r\n';
+      data += 'Content-Type: ' + mimeType + '\r\n\r\n';
+      data += atob(base64) + '\r\n'; // base64 → バイナリ
+      data += '--' + boundary + '--\r\n';
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+      xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            var res = JSON.parse(xhr.responseText);
+            postStatus(content, res.id, instanceUrl, accessToken);
+          } else {
+            alert('画像アップロードに失敗しました');
+          }
+        }
+      };
+
+      xhr.sendAsBinary(data); // 下で定義
+    }
+
+    function postStatus(text, mediaId, instanceUrl, accessToken) {
+      var proxy = 'https://cors-0x10.online:4443/';
+      var url = proxy + instanceUrl + '/api/v1/statuses';
+
+      var params = 'status=' + encodeURIComponent(text);
+      if (mediaId) {
+        params += '&media_ids[]=' + encodeURIComponent(mediaId);
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            alert('投稿が送信されました');
+            window.location.href = 'timeline.html';
+          } else {
+            alert('投稿に失敗しました');
+          }
+        }
+      };
+
+      xhr.send(params);
+    }
+
+    // XMLHttpRequest.sendAsBinary polyfill (for iOS6)
+    if (!XMLHttpRequest.prototype.sendAsBinary) {
+      XMLHttpRequest.prototype.sendAsBinary = function (dataStr) {
+        var byteArray = new Uint8Array(dataStr.length);
+        for (var i = 0; i < dataStr.length; i++) {
+          byteArray[i] = dataStr.charCodeAt(i) & 0xff;
+        }
+        this.send(byteArray.buffer);
+      };
+    }
+  </script>
 </body>
 </html>
