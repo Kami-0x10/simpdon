@@ -48,21 +48,35 @@
 
         var proxyUrl = "https://cors-0x10.online:4443/";
         var apiUrl = instanceUrl + '/api/v1/statuses';
+        var mediaApiUrl = instanceUrl + '/api/v1/media';
 
-        // 画像がある場合はBase64へ変換
+        // 画像がある場合、まずメディアをアップロード
         if (imageFile) {
-            var reader = new FileReader();
-            reader.onload = function () {
-                var base64Image = reader.result.split(',')[1]; // "data:image/png;base64,..." → Base64部分だけ取り出す
+            var formData = new FormData();
+            formData.append('file', imageFile);
 
-                sendPostRequest(content, base64Image);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', proxyUrl + mediaApiUrl, true);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        var mediaId = response.id;
+                        sendPostRequest(content, mediaId);
+                    } else {
+                        alert('画像のアップロードに失敗しました。エラーコード: ' + xhr.status);
+                    }
+                }
             };
-            reader.readAsDataURL(imageFile);
+            xhr.send(formData);
         } else {
+            // 画像がない場合、直接投稿
             sendPostRequest(content, null);
         }
 
-        function sendPostRequest(content, base64Image) {
+        function sendPostRequest(content, mediaId) {
             var xhr = new XMLHttpRequest();
             xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
@@ -70,13 +84,17 @@
 
             var data = {
                 status: content,
-                image_base64: base64Image  // Mastodon標準APIでは無視されます
             };
+
+            if (mediaId) {
+                data.media_ids = [mediaId]; // メディアIDを添付
+            }
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         alert('投稿が送信されました');
+                        window.location.href = 'timeline.html';  // タイムラインページにリダイレクト
                     } else {
                         alert('投稿の送信に失敗しました。エラーコード: ' + xhr.status);
                     }
@@ -88,7 +106,5 @@
     };
 </script>
 
-    
 </body>
 </html>
-
