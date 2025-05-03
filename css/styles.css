@@ -1,4 +1,4 @@
-/* 基本のスタイル */
+/* 基本のスタイル */ 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* よりモダンなフォントに */
     margin: 0;
@@ -101,6 +101,15 @@ a:hover {
 }
 
 /* レスポンシブ対応 */
+@media (max-width: 768px) {
+    /* 投稿カードに適切な余白を追加 */
+    .post {
+        margin-top: 15px; /* 上部の余白を少し広げる */
+        padding: 25px; /* 内側の余白を少し広げて快適に */
+    }
+}
+
+/* スマホ画面対応（480px以下） */
 @media (max-width: 480px) {
     .container {
         padding: 20px;  /* スマホ画面での余白調整 */
@@ -111,6 +120,12 @@ a:hover {
     }
     input[type="text"], textarea, .button {
         font-size: 16px;
+    }
+
+    /* 投稿カードの余白を調整 */
+    .post {
+        margin-top: 20px; /* 上部の余白を広げる */
+        padding: 20px; /* 内側の余白を広げる */
     }
 }
 
@@ -123,6 +138,17 @@ a:hover {
     margin-bottom: 20px;
     word-wrap: break-word;
     overflow: hidden;
+    margin-top: 10px; /* 上部に少し余白を追加 */
+}
+
+/* ユーザーアイコンのスタイル */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;  /* 丸く表示 */
+    margin-right: 10px;  /* ユーザー名との間にスペース */
+    object-fit: cover;  /* 画像が枠に収まるように調整 */
+    position: relative;
 }
 
 /* 投稿画像のスタイル */
@@ -133,3 +159,30 @@ a:hover {
     object-fit: cover;  /* 画像が枠に収まるように調整 */
 }
 
+/* 投稿のヘッダー (アイコンとユーザー名の部分) */
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;  /* ヘッダーと本文の間に少し余白 */
+}
+
+/* 投稿のユーザー名 */
+.post-header h2 {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+    font-weight: bold;
+}
+
+/* 投稿の本文 */
+.post p {
+    font-size: 14px;
+    color: #555;
+    margin-top: 10px;
+}
+
+/* 親コンテナの高さ調整 */
+.container {
+    height: auto; /* 高さをコンテンツに合わせて調整 */
+    overflow: hidden; /* 見切れ防止 */
+}
