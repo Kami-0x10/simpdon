@@ -22,63 +22,60 @@
     <!-- iframeを追加 -->
     <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
 
-    <script>
-        function getCookie(name) {
-            var nameEq = name + "=";
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].replace(/^\s+/, ''); // 前後の空白を削除
-                if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
-            }
-            return "";
+<script>
+    document.getElementById('post-btn').onclick = function () {
+        var content = document.getElementById('content').value.trim();
+        var imageFile = document.getElementById('image').files[0];
+
+        if (!content && !imageFile) {
+            alert('投稿内容または画像を入力してください');
+            return;
         }
 
-        // 投稿ボタンがクリックされたとき
-        document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
+        const apiUrl = 'http://localhost:6553/api/v1/statuses';  // サーバーURL
+        const token = localStorage.getItem('auth_token');  // ローカルストレージからトークンを取得
 
-            if (!content) {
-                alert('投稿内容を入力してください');
-                return;
+        if (!token) {
+            alert('ログインされていません。');
+            return;
+        }
+
+        // フォームデータを作成
+        const formData = new FormData();
+        if (content) formData.append('content', content);
+        if (imageFile) formData.append('image', imageFile);
+
+        // fetchを使ってPOSTリクエストを送信
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,  // 認証トークンを追加
+            },
+            body: formData,  // フォームデータを送信
+            credentials: 'include',  // セッションのためにクッキーを含める
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || '不明なエラー');
+                });
             }
-
-            var instanceUrl = getCookie('instanceUrl');
-            var accessToken = getCookie('accessToken');
-
-            if (!instanceUrl || !accessToken) {
-                alert('ログイン情報が見つかりません');
-                window.location.href = 'login.html';
-                return;
+            return response.json();
+        })
+        .then(data => {
+            if (data.id) {
+                alert('投稿が送信されました');
+                window.location.href = 'timeline.html';  // 投稿後にタイムラインページに遷移
+            } else {
+                alert('投稿の送信に失敗しました');
             }
+        })
+        .catch(error => {
+            alert('投稿の送信に失敗しました。エラー: ' + error.message);  // エラー内容をアラート表示
+        });
+    };
+</script>
 
-            // CORSプロキシを通してAPIリクエストを送信
-            var proxyUrl = "https://cors-0x10.online/";
-            var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
-
-            // リクエストを作成
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", proxyUrl + apiUrl, true);
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            // リクエスト送信時の処理
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        alert('投稿が送信されました');
-                    } else {
-                        alert('投稿の送信に失敗しました');
-                    }
-                }
-            };
-
-            // リクエストボディのデータをURLエンコードして送信
-            var params = "status=" + encodeURIComponent(content);
-
-            // リクエストを送信
-            xhr.send(params);
-        };
-    </script>
 </body>
 
 </html>
