@@ -1,81 +1,86 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="./ico/global.ico">
-    <script src="./js/json2.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新しい投稿 - Simpdon クライアント</title>
+    <title>新しい投稿</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
-
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
         <div class="form">
             <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
-            <a href="javascript:void(0);" id="post-btn" class="button">投稿</a>
+            <input type="file" id="image" accept="image/*">
+            <button id="post-btn" class="button">投稿</button>
+            <a href="timeline.html" class="button">タイムラインに戻る</a>
         </div>
     </div>
 
-    <!-- iframeを追加 -->
-    <iframe id="hidden-frame" name="hidden-frame" style="display:none;"></iframe>
-
-<script>
-    document.getElementById('post-btn').onclick = function () {
-        var content = document.getElementById('content').value.trim();
-        var imageFile = document.getElementById('image').files[0];
-
-        if (!content && !imageFile) {
-            alert('投稿内容または画像を入力してください');
-            return;
+    
+    <script>
+        function getCookie(name) {
+            var nameEq = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i].replace(/^\s+/, ''); // 前後の空白を削除
+                if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
+            }
+            return "";
         }
 
-        const apiUrl = 'http://localhost:6553/api/v1/statuses';  // サーバーURL
-        const token = localStorage.getItem('auth_token');  // ローカルストレージからトークンを取得
+        // 投稿ボタンがクリックされたとき
+        document.getElementById('post-btn').onclick = function () {
+            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
 
-        if (!token) {
-            alert('ログインされていません。');
-            return;
-        }
-
-        // フォームデータを作成
-        const formData = new FormData();
-        if (content) formData.append('content', content);
-        if (imageFile) formData.append('image', imageFile);
-
-        // fetchを使ってPOSTリクエストを送信
-        fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,  // 認証トークンを追加
-            },
-            body: formData,  // フォームデータを送信
-            credentials: 'include',  // セッションのためにクッキーを含める
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || '不明なエラー');
-                });
+            if (!content) {
+                alert('投稿内容を入力してください');
+                return;
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data.id) {
-                alert('投稿が送信されました');
-                window.location.href = 'timeline.html';  // 投稿後にタイムラインページに遷移
-            } else {
-                alert('投稿の送信に失敗しました');
-            }
-        })
-        .catch(error => {
-            alert('投稿の送信に失敗しました。エラー: ' + error.message);  // エラー内容をアラート表示
-        });
-    };
-</script>
 
+            var instanceUrl = getCookie('instanceUrl');
+            var accessToken = getCookie('accessToken');
+
+            if (!instanceUrl || !accessToken) {
+                alert('ログイン情報が見つかりません');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // CORSプロキシを通してAPIリクエストを送信
+            var proxyUrl = "https://cors-0x10.online:4443/"; 
+            var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
+
+            // リクエストを作成
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", proxyUrl + apiUrl, true);
+            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+            xhr.setRequestHeader("Content-Type", "application/json"); // JSON形式に変更
+
+            // リクエスト送信時の処理
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText); // レスポンスをJSONとして解析
+                        if (response.id) {
+                            alert('投稿が送信されました');
+                        } else {
+                            alert('投稿の送信に失敗しました');
+                        }
+                    } else {
+                        alert('投稿の送信に失敗しました。エラーコード: ' + xhr.status);
+                    }
+                }
+            };
+
+            // リクエストボディのデータをJSON形式で送信
+            var data = JSON.stringify({ status: content });
+
+            // リクエストを送信
+            xhr.send(data);
+        };
+    </script>
+    
 </body>
-
 </html>
+
