@@ -2,26 +2,22 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <link rel="apple-touch-icon" href="./ico/simpdon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="./ico/simpdon.ico">
-    <meta name="msapplication-TileImage" content="./ico/simpdon.ico">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <link rel="icon" href="./ico/simpdon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投稿一覧 - Simpdon クライアント</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/styles.css">
+    <link rel="icon" href="./ico/simpdon.ico">
 </head>
 <body>
     <div class="container">
         <h1>投稿一覧</h1>
 
         <div id="posts" class="posts"></div>
-        
+
         <div class="menu">
             <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> |
             <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a>
         </div>
-        
+
         <div class="actions">
             <a href="post.html" class="button">新しい投稿</a>
             <a href="login.html" class="logout-link">ログアウト</a>
@@ -29,38 +25,38 @@
     </div>
 
     <script>
-        // CookieからインスタンスURLとアクセストークンを取得する関数
+        if (!String.prototype.trim) {
+            String.prototype.trim = function() {
+                return this.replace(/^\s+|\s+$/g, '');
+            };
+        }
+
         function getCookie(name) {
             var nameEq = name + "=";
             var ca = document.cookie.split(';');
             for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].trim();
+                var c = ca[i].replace(/^\s+/, '');
                 if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
             }
             return "";
         }
 
-        // ログイン状態を確認
         var instanceUrl = getCookie('instanceUrl');
         var accessToken = getCookie('accessToken');
 
         if (!instanceUrl || !accessToken) {
-            window.location.href = 'login.html'; // ログインしていなければログインページに遷移
+            window.location.href = 'login.html';
         }
 
-        // 投稿を取得する関数 (XMLHttpRequestを使用)
         function fetchPosts(timelineType) {
             var apiUrl = "";
-
-            // タイムラインタイプに応じてURLを変更
             if (timelineType === 'public') {
                 apiUrl = "/api/v1/timelines/public";
-            } else if (timelineType === 'home') {
+            } else {
                 apiUrl = "/api/v1/timelines/home";
             }
 
-            var proxyUrl = "https://cors-0x10.online:4443/"; // プロキシURLを使ってCORS対策
-
+            var proxyUrl = "https://cors-0x10.online:4443/";
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
@@ -73,73 +69,65 @@
                             var data = JSON.parse(xhr.responseText);
                             displayPosts(data);
                         } catch (e) {
-                            console.error("JSON解析エラー:", e);
                             document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                         }
                     } else {
-                        console.error('ネットワークエラー:', xhr.status, xhr.statusText);
                         document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                     }
                 }
             };
 
             xhr.onerror = function() {
-                console.error('リクエストエラーが発生しました');
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
             };
 
             xhr.send();
         }
 
-        // 投稿を表示する関数
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
-            postsContainer.innerHTML = ''; // 既存の投稿をクリア
+            postsContainer.innerHTML = '';
 
-            posts.forEach(function (post) {
+            for (var i = 0; i < posts.length; i++) {
+                var post = posts[i];
                 var postElement = document.createElement('div');
-                postElement.classList.add('post');
+                postElement.className = 'post';
 
                 var username = post.account.acct;
                 var content = post.content;
-
-                // ユーザーのアイコンを取得
                 var avatarUrl = post.account.avatar;
-                var avatarImg = avatarUrl ? `<img src="${avatarUrl}" alt="@${username}のアイコン" class="user-avatar" />` : '';
+                var avatarImg = avatarUrl ? '<img src="' + avatarUrl + '" alt="@' + username + 'のアイコン" class="user-avatar" />' : '';
 
-                // 画像がある場合、その画像を表示
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
-                    images = post.media_attachments.map(function (attachment) {
-                        return '<img src="' + attachment.url + '" alt="画像" class="post-image" />';
-                    }).join('');
+                    for (var j = 0; j < post.media_attachments.length; j++) {
+                        images += '<img src="' + post.media_attachments[j].url + '" alt="画像" class="post-image" />';
+                    }
                 }
 
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        ${avatarImg}
-                        <h2>@${username}</h2>
-                    </div>
-                    <p>${emojiContent}</p>
-                    ${images}
-                `;
+                postElement.innerHTML = ''
+                    + '<div class="post-header">'
+                    + avatarImg
+                    + '<h2>@' + username + '</h2>'
+                    + '</div>'
+                    + '<p>' + emojiContent + '</p>'
+                    + images;
+
                 postsContainer.appendChild(postElement);
-            });
+            }
         }
 
-        // 初期表示はHome TLを表示
-        window.onload = function() {
-            setTimeline('home');
-        };
-
-        // タイムラインを設定する関数
         function setTimeline(timelineType) {
             fetchPosts(timelineType);
         }
+
+        window.onload = function() {
+            setTimeline('home');
+        };
     </script>
 </body>
 </html>
