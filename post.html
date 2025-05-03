@@ -32,6 +32,7 @@
         // 投稿ボタンがクリックされたとき
         document.getElementById('post-btn').onclick = function () {
             var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
+            var imageFile = document.getElementById('image').files[0];
 
             if (!content) {
                 alert('投稿内容を入力してください');
@@ -74,7 +75,7 @@
             };
 
             // リクエストボディのデータをJSON形式で送信
-            var data = JSON.stringify({ status: content });
+            var data = JSON.stringify({ status: content, imageFile });
 
             // リクエストを送信
             xhr.send(data);
