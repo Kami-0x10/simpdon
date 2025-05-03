@@ -10,96 +10,99 @@
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
-        <form id="post-form" enctype="multipart/form-data" method="post">
-            <textarea id="post-text" name="status" rows="5" cols="40" placeholder="投稿内容を入力してください..."></textarea><br>
-            <label for="media">画像を選択:</label><br>
-            <input type="file" id="media" name="media" accept="image/*"><br><br>
-            <a href="javascript:void(0);" onclick="submitPost()" class="button">投稿する</a>
-        </form>
+        <textarea id="post-text" rows="5" cols="40" placeholder="投稿内容を入力してください..."></textarea><br>
+        <input type="file" id="media" accept="image/*"><br><br>
+        <a href="javascript:void(0);" onclick="submitPost()" class="button">投稿する</a>
     </div>
 
     <script>
-        if (!String.prototype.trim) {
-            String.prototype.trim = function() {
-                return this.replace(/^\s+|\s+$/g, '');
+        // Polyfill for iOS 6
+        if (!XMLHttpRequest.prototype.sendAsBinary) {
+            XMLHttpRequest.prototype.sendAsBinary = function (data) {
+                var bytes = Array.prototype.map.call(data, function(c) {
+                    return c.charCodeAt(0) & 0xff;
+                });
+                this.send(new Uint8Array(bytes));
             };
         }
 
         function getCookie(name) {
-            var nameEq = name + "=";
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].replace(/^\s+/, '');
-                if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var c = cookies[i].trim();
+                if (c.indexOf(name + '=') === 0) return c.substring(name.length + 1);
             }
-            return "";
+            return '';
         }
 
         function submitPost() {
+            var text = document.getElementById('post-text').value;
+            var file = document.getElementById('media').files[0];
             var instanceUrl = getCookie('instanceUrl');
             var accessToken = getCookie('accessToken');
-            var text = document.getElementById('post-text').value;
-            var fileInput = document.getElementById('media');
-            var file = fileInput.files.length > 0 ? fileInput.files[0] : null;
-
-            if (!text && !file) {
-                alert("投稿内容または画像を入力してください");
-                return;
-            }
 
             if (file) {
-                uploadMedia(file, instanceUrl, accessToken, function(mediaId) {
-                    postStatus(text, mediaId, instanceUrl, accessToken);
-                });
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    uploadImage(e.target.result, file.name, function(mediaId) {
+                        sendPost(text, mediaId);
+                    });
+                };
+                reader.readAsDataURL(file);
             } else {
-                postStatus(text, null, instanceUrl, accessToken);
+                sendPost(text, null);
             }
         }
 
-        function uploadMedia(file, instanceUrl, accessToken, callback) {
+        function uploadImage(dataUrl, filename, callback) {
+            var boundary = '----WebKitFormBoundary' + Math.random().toString(36).substr(2);
+            var parts = dataUrl.split(',');
+            var mime = parts[0].match(/:(.*?);/)[1];
+            var binary = atob(parts[1]);
+
+            var body = '';
+            body += '--' + boundary + '\r\n';
+            body += 'Content-Disposition: form-data; name="file"; filename="' + filename + '"\r\n';
+            body += 'Content-Type: ' + mime + '\r\n\r\n';
+            body += binary + '\r\n';
+            body += '--' + boundary + '--\r\n';
+
             var xhr = new XMLHttpRequest();
-            var formData = new FormData();
-            formData.append('file', file);
+            var instanceUrl = getCookie('instanceUrl');
+            var accessToken = getCookie('accessToken');
 
-            xhr.open("POST", instanceUrl + "/api/v2/media", true);
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText);
-                        callback(response.id);
-                    } else {
-                        alert("画像のアップロードに失敗しました");
-                    }
-                }
-            };
-
-            xhr.send(formData);
-        }
-
-        function postStatus(text, mediaId, instanceUrl, accessToken) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", instanceUrl + "/api/v1/statuses", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-
-            var body = "status=" + encodeURIComponent(text);
-            if (mediaId) {
-                body += "&media_ids[]=" + encodeURIComponent(mediaId);
-            }
-
+            xhr.open('POST', 'https://cors-0x10.online:4443/' + instanceUrl + '/api/v2/media', true);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        alert("投稿が完了しました");
-                        window.location.href = 'timeline.html';
-                    } else {
-                        alert("投稿に失敗しました");
-                    }
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var res = JSON.parse(xhr.responseText);
+                    callback(res.id);
+                } else if (xhr.readyState === 4) {
+                    alert('画像のアップロードに失敗しました');
                 }
             };
+            xhr.sendAsBinary(body);
+        }
 
+        function sendPost(text, mediaId) {
+            var xhr = new XMLHttpRequest();
+            var instanceUrl = getCookie('instanceUrl');
+            var accessToken = getCookie('accessToken');
+            var body = 'status=' + encodeURIComponent(text);
+            if (mediaId) body += '&media_ids[]=' + encodeURIComponent(mediaId);
+
+            xhr.open('POST', 'https://cors-0x10.online:4443/' + instanceUrl + '/api/v1/statuses', true);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    alert('投稿が完了しました');
+                    window.location.href = 'timeline.html';
+                } else if (xhr.readyState === 4) {
+                    alert('投稿に失敗しました');
+                }
+            };
             xhr.send(body);
         }
     </script>
