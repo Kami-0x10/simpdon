@@ -17,70 +17,77 @@
         </div>
     </div>
 
-    
-    <script>
-        function getCookie(name) {
-            var nameEq = name + "=";
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].replace(/^\s+/, ''); // 前後の空白を削除
-                if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
-            }
-            return "";
+<script>
+    function getCookie(name) {
+        var nameEq = name + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i].trim();
+            if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
+        }
+        return "";
+    }
+
+    document.getElementById('post-btn').onclick = function () {
+        var content = document.getElementById('content').value.trim();
+        var imageFile = document.getElementById('image').files[0];
+
+        if (!content) {
+            alert('投稿内容を入力してください');
+            return;
         }
 
-        // 投稿ボタンがクリックされたとき
-        document.getElementById('post-btn').onclick = function () {
-            var content = document.getElementById('content').value.replace(/^\s+|\s+$/g, '');
-            var imageFile = document.getElementById('image').files[0];
+        var instanceUrl = getCookie('instanceUrl');
+        var accessToken = getCookie('accessToken');
 
-            if (!content) {
-                alert('投稿内容を入力してください');
-                return;
-            }
+        if (!instanceUrl || !accessToken) {
+            alert('ログイン情報が見つかりません');
+            window.location.href = 'login.html';
+            return;
+        }
 
-            var instanceUrl = getCookie('instanceUrl');
-            var accessToken = getCookie('accessToken');
+        var proxyUrl = "https://cors-0x10.online:4443/";
+        var apiUrl = instanceUrl + '/api/v1/statuses';
 
-            if (!instanceUrl || !accessToken) {
-                alert('ログイン情報が見つかりません');
-                window.location.href = 'login.html';
-                return;
-            }
+        // 画像がある場合はBase64へ変換
+        if (imageFile) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var base64Image = reader.result.split(',')[1]; // "data:image/png;base64,..." → Base64部分だけ取り出す
 
-            // CORSプロキシを通してAPIリクエストを送信
-            var proxyUrl = "https://cors-0x10.online:4443/"; 
-            var apiUrl = instanceUrl + '/api/v1/statuses';  // 投稿用APIのURL
+                sendPostRequest(content, base64Image);
+            };
+            reader.readAsDataURL(imageFile);
+        } else {
+            sendPostRequest(content, null);
+        }
 
-            // リクエストを作成
+        function sendPostRequest(content, base64Image) {
             var xhr = new XMLHttpRequest();
             xhr.open("POST", proxyUrl + apiUrl, true);
             xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-            xhr.setRequestHeader("Content-Type", "application/json"); // JSON形式に変更
+            xhr.setRequestHeader("Content-Type", "application/json");
 
-            // リクエスト送信時の処理
+            var data = {
+                status: content,
+                image_base64: base64Image  // Mastodon標準APIでは無視されます
+            };
+
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText); // レスポンスをJSONとして解析
-                        if (response.id) {
-                            alert('投稿が送信されました');
-                        } else {
-                            alert('投稿の送信に失敗しました');
-                        }
+                        alert('投稿が送信されました');
                     } else {
                         alert('投稿の送信に失敗しました。エラーコード: ' + xhr.status);
                     }
                 }
             };
 
-            // リクエストボディのデータをJSON形式で送信
-            var data = JSON.stringify({ status: content, imageFile });
+            xhr.send(JSON.stringify(data));
+        }
+    };
+</script>
 
-            // リクエストを送信
-            xhr.send(data);
-        };
-    </script>
     
 </body>
 </html>
