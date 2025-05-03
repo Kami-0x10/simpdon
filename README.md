@@ -12,5 +12,10 @@ misskeyにはsimpkeyがあるよねといった話<br>
 アクセストークンはここで手に入れられます<br>
 例: https://mastodon.social/settings/applications/new<br>
 
+![simpdon_screenshot2](https://github.com/user-attachments/assets/429cd518-77c8-4d59-a616-441e0853bcf4)
+
+![simpdon_screenshot3](https://github.com/user-attachments/assets/48a5451d-114b-4fe3-96d6-8d47b62d6547)
+
+
 ## License
 すべての権利はわたくしに属します。
