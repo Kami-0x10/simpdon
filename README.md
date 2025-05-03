@@ -1,7 +1,9 @@
 # simpdon 
 多分ssl対応ブラウザならどんなものでも投稿、閲覧できるmastodonクライアントアプリ<br>
 なんとiOS6対応!!!<br>
-https://kami-0x10.github.io/simpdon/login.html<br>
+https://kami-0x10.github.io/simpdon/login.html
+
+
 ![simpdon_screenshot2](https://github.com/user-attachments/assets/429cd518-77c8-4d59-a616-441e0853bcf4)
 
 ![simpdon_screenshot3](https://github.com/user-attachments/assets/48a5451d-114b-4fe3-96d6-8d47b62d6547)
