@@ -3,113 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新しい投稿 - Simpdon クライアント</title>
+    <title>新しい投稿</title>
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
     <div class="container">
         <h1>新しい投稿</h1>
-        <form id="postForm">
-            <textarea id="content" placeholder="投稿内容を入力してください" required></textarea><br>
-            <input type="file" id="imageInput" accept="image/*"><br>
-            <button type="submit">投稿</button>
-        </form>
+        <div class="form">
+            <textarea id="content" placeholder="投稿内容を入力してください"></textarea>
+            <input type="file" id="image" accept="image/*">
+            <button id="post-btn" class="button">投稿</button>
+            <a href="timeline.html" class="button">タイムラインに戻る</a>
+        </div>
     </div>
+
     <script>
         function getCookie(name) {
-            var nameEq = name + "=";
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].trim();
-                if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
-            }
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
             return null;
         }
 
-        var instanceUrl = getCookie('instanceUrl');
-        var accessToken = getCookie('accessToken');
+        document.getElementById('post-btn').onclick = async function () {
+            const content = document.getElementById('content').value.trim();
+            const imageFile = document.getElementById('image').files[0];
 
-        if (!instanceUrl || !accessToken) {
-            window.location.href = 'login.html';
-        }
-
-        document.getElementById('postForm').onsubmit = function(e) {
-            e.preventDefault();
-            var content = document.getElementById('content').value.trim();
-            var imageInput = document.getElementById('imageInput');
-            if (!content) {
-                alert('投稿内容を入力してください。');
+            if (!content && !imageFile) {
+                alert('投稿内容または画像を入力してください');
                 return;
             }
 
-            if (imageInput.files.length > 0) {
-                var file = imageInput.files[0];
-                var reader = new FileReader();
-                reader.onloadend = function () {
-                    var base64Image = reader.result.split(',')[1];
-                    uploadMedia(base64Image, file.type, content);
-                };
-                reader.readAsDataURL(file);
-            } else {
-                sendPost(content, null);
+            const instanceUrl = getCookie('instance_url');
+            const accessToken = getCookie('access_token');
+
+            if (!instanceUrl || !accessToken) {
+                alert('ログイン情報がありません（Cookieが設定されていません）');
+                return;
+            }
+
+            const proxy = 'https://cors-0x10.online:4443/';
+            let mediaId = null;
+
+            try {
+                if (imageFile) {
+                    const mediaForm = new FormData();
+                    mediaForm.append('file', imageFile);
+
+                    const mediaRes = await fetch(proxy + instanceUrl + '/api/v2/media', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                        body: mediaForm
+                    });
+
+                    const mediaData = await mediaRes.json();
+                    if (!mediaRes.ok) throw new Error(mediaData.error || 'メディアアップロード失敗');
+
+                    mediaId = mediaData.id;
+                }
+
+                const statusForm = new FormData();
+                statusForm.append('status', content || ''); // 空投稿対策
+                if (mediaId) statusForm.append('media_ids[]', mediaId);
+
+                const postRes = await fetch(proxy + instanceUrl + '/api/v1/statuses', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: statusForm
+                });
+
+                const postData = await postRes.json();
+                if (!postRes.ok) throw new Error(postData.error || '投稿に失敗しました');
+
+                alert('投稿が送信されました');
+                window.location.href = 'timeline.html';
+
+            } catch (error) {
+                alert('エラーが発生しました: ' + error.message);
             }
         };
-
-        function uploadMedia(base64Image, mimeType, content) {
-            var apiUrl = "https://cors-0x10.online:4443/" + instanceUrl.replace(/^https?:\/\//, '') + "/api/v2/media";
-            fetch(apiUrl, {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer " + accessToken,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    file: "data:" + mimeType + ";base64," + base64Image
-                })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("画像のアップロードに失敗しました: " + response.status);
-                return response.json();
-            })
-            .then(data => {
-                var mediaId = data.id;
-                sendPost(content, mediaId);
-            })
-            .catch(error => {
-                console.error(error);
-                alert("画像のアップロードに失敗しました。");
-            });
-        }
-
-        function sendPost(content, mediaId) {
-            var apiUrl = "https://cors-0x10.online:4443/" + instanceUrl.replace(/^https?:\/\//, '') + "/api/v1/statuses";
-            var bodyData = {
-                status: content
-            };
-            if (mediaId) {
-                bodyData.media_ids = [mediaId];
-            }
-
-            fetch(apiUrl, {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer " + accessToken,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(bodyData)
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("投稿に失敗しました: " + response.status);
-                return response.json();
-            })
-            .then(data => {
-                alert("投稿が完了しました！");
-                window.location.href = "timeline.html";
-            })
-            .catch(error => {
-                console.error(error);
-                alert("投稿に失敗しました。");
-            });
-        }
     </script>
 </body>
 </html>
