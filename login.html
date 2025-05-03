@@ -1,49 +1,51 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ja">
-<head> 
+<head>
     <meta charset="UTF-8">
-    <link rel="apple-touch-icon" href="./ico/simpdon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="./ico/simpdon.ico">
-    <meta name="msapplication-TileImage" content="./ico/simpdon.ico">
-    <meta name="msapplication-TileColor" content="#ffffff">
+    <title>ログイン - Simpdon クライアント</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/styles.css">
     <link rel="icon" href="./ico/simpdon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>ログイン - Simpdon クライアント</title> 
-    <link rel="stylesheet" href="./css/styles.css"> 
-</head> 
-<body> 
-    <div class="container"> 
-        <h1>ログイン</h1> 
-        <div class="form"> 
-            <label for="instance-url">インスタンスURL</label> 
-            <input type="text" id="instance-url" placeholder="例: https://mastodon.social" />   
- 
-            <label for="access-token">アクセストークン</label>  
-            <input type="text" id="access-token" placeholder="アクセストークンを入力" />   
- 
-            <a href="javascript:void(0);" id="login-btn" class="button">ログイン</a> 
-        </div> 
-    </div> 
+</head>
+<body>
+    <div class="container">
+        <h1>ログイン</h1>
+        <div class="form">
+            <label for="instance-url">インスタンスURL</label>
+            <input type="text" id="instance-url" placeholder="例: https://mastodon.social" />
 
-    <script> 
-        function setCookie(name, value) { 
-            var expires = new Date(); 
-            expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000)); 
-            document.cookie = name + "=" + value + ";expires=" + expires.toUTCString() + ";path=/"; 
-        } 
+            <label for="access-token">アクセストークン</label>
+            <input type="text" id="access-token" placeholder="アクセストークンを入力" />
 
-        document.getElementById('login-btn').onclick = function() { 
-            const instanceUrl = document.getElementById('instance-url').value.trim(); 
-            const accessToken = document.getElementById('access-token').value.trim(); 
+            <a href="javascript:void(0);" id="login-btn" class="button">ログイン</a>
+        </div>
+    </div>
 
-            if (instanceUrl && accessToken) { 
-                setCookie('instanceUrl', instanceUrl); 
-                setCookie('accessToken', accessToken); 
-                window.location.href = 'timeline.html'; 
-            } else { 
-                alert('インスタンスURLとアクセストークンを入力してください'); 
-            } 
-        }; 
-    </script> 
-</body> 
+    <script>
+        function setCookie(name, value) {
+            var expires = new Date();
+            expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000));
+            document.cookie = name + "=" + value + ";expires=" + expires.toUTCString() + ";path=/";
+        }
+
+        if (!String.prototype.trim) {
+            String.prototype.trim = function() {
+                return this.replace(/^\s+|\s+$/g, '');
+            };
+        }
+
+        document.getElementById('login-btn').onclick = function() {
+            var instanceUrl = document.getElementById('instance-url').value.trim();
+            var accessToken = document.getElementById('access-token').value.trim();
+
+            if (instanceUrl && accessToken) {
+                setCookie('instanceUrl', instanceUrl);
+                setCookie('accessToken', accessToken);
+                window.location.href = 'timeline.html';
+            } else {
+                alert('インスタンスURLとアクセストークンを入力してください');
+            }
+        };
+    </script>
+</body>
 </html>
