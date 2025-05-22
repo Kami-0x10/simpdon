@@ -25,15 +25,10 @@
     </div>
 
     <script>
-        // iOS 6ポリフィル
+        // ポリフィル（trimのみ）
         if (!String.prototype.trim) {
             String.prototype.trim = function() {
                 return this.replace(/^\s+|\s+$/g, '');
-            };
-        }
-        if (!String.prototype.endsWith) {
-            String.prototype.endsWith = function(suffix) {
-                return this.indexOf(suffix, this.length - suffix.length) !== -1;
             };
         }
 
@@ -50,8 +45,8 @@
         var instanceUrl = getCookie('instanceUrl');
         var accessToken = getCookie('accessToken');
 
-        // instanceUrl正規化
-        if (instanceUrl && !instanceUrl.endsWith('/')) {
+        // instanceUrl正規化（末尾スラッシュ）
+        if (instanceUrl && instanceUrl[instanceUrl.length - 1] !== '/') {
             instanceUrl += '/';
         }
 
@@ -63,9 +58,9 @@
         function fetchPosts(timelineType, retryCount = 0) {
             var apiUrl = "";
             if (timelineType === 'public') {
-                apiUrl = "api/v1/timelines/public";
+                apiUrl = "/api/v1/timelines/public";
             } else {
-                apiUrl = "api/v1/timelines/home";
+                apiUrl = "/api/v1/timelines/home";
             }
 
             var proxyUrl = "https://cors-0x10.online:4443/";
@@ -115,22 +110,21 @@
                 var postElement = document.createElement('div');
                 postElement.className = 'post';
 
-                // Misskey/Mastodon対応
-                var username = post.account ? post.account.acct : post.user ? post.user.username : 'unknown';
-                var content = post.content || post.text || '';
-                var avatarUrl = post.account ? post.account.avatar : post.user ? post.user.avatar : '';
+                var username = post.account ? post.account.acct : 'unknown';
+                var content = post.content || '';
+                var avatarUrl = post.account ? post.account.avatar : '';
 
-                // WebP変換
+                // WebP変換（アバター）
                 var avatarImg = avatarUrl
-                    ? '<img src="' + (avatarUrl.endsWith('.webp') ? proxyUrl + encodeURIComponent(avatarUrl) : avatarUrl) + '" alt="@' + username + 'のアイコン" class="user-avatar" />'
+                    ? '<img src="' + (avatarUrl.indexOf('.webp') !== -1 ? proxyUrl + encodeURIComponent(avatarUrl) : avatarUrl) + '" alt="@' + username + 'のアイコン" class="user-avatar" />'
                     : '';
 
+                // WebP変換（添付画像）
                 var images = '';
-                var attachments = post.media_attachments || post.files || [];
-                if (attachments && attachments.length > 0) {
-                    for (var j = 0; j < attachments.length; j++) {
-                        var imgUrl = attachments[j].url;
-                        images += '<img src="' + (imgUrl.endsWith('.webp') ? proxyUrl + encodeURIComponent(imgUrl) : imgUrl) + '" alt="画像" class="post-image" />';
+                if (post.media_attachments && post.media_attachments.length > 0) {
+                    for (var j = 0; j < post.media_attachments.length; j++) {
+                        var imgUrl = post.media_attachments[j].url;
+                        images += '<img src="' + (imgUrl.indexOf('.webp') !== -1 ? proxyUrl + encodeURIComponent(imgUrl) : imgUrl) + '" alt="画像" class="post-image" />';
                     }
                 }
 
