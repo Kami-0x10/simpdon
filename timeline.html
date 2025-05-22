@@ -25,7 +25,6 @@
     </div>
 
     <script>
-        // ポリフィル（trimのみ）
         if (!String.prototype.trim) {
             String.prototype.trim = function() {
                 return this.replace(/^\s+|\s+$/g, '');
@@ -45,32 +44,34 @@
         var instanceUrl = getCookie('instanceUrl');
         var accessToken = getCookie('accessToken');
 
-        // instanceUrl正規化（末尾スラッシュ）
-        if (instanceUrl && instanceUrl[instanceUrl.length - 1] !== '/') {
-            instanceUrl += '/';
-        }
-
         if (!instanceUrl || !accessToken) {
             window.location.href = 'login.html';
-            return;
         }
 
-        function fetchPosts(timelineType, retryCount = 0) {
-            var apiUrl = "";
-            if (timelineType === 'public') {
-                apiUrl = "/api/v1/timelines/public";
-            } else {
-                apiUrl = "/api/v1/timelines/home";
+        function supportsWebP() {
+            var elem = document.createElement('canvas');
+            if (!!(elem.getContext && elem.getContext('2d'))) {
+                return elem.toDataURL('image/webp').indexOf('data:image/webp') === 0;
             }
+            return false;
+        }
 
+        var webpSupported = supportsWebP();
+
+        function convertToFallback(url) {
+            if (!webpSupported && url.endsWith('.webp')) {
+                return url.replace('.webp', '.jpg');
+            }
+            return url;
+        }
+
+        function fetchPosts(timelineType) {
+            var apiUrl = (timelineType === 'public') ? "/api/v1/timelines/public" : "/api/v1/timelines/home";
             var proxyUrl = "https://cors-0x10.online:4443/";
-            var fullUrl = proxyUrl + instanceUrl + apiUrl;
-
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", fullUrl, true);
+            xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            xhr.setRequestHeader('User-Agent', 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 6_1_3 like Mac OS X; ja-jp) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B329 Safari/8536.25');
 
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
@@ -79,22 +80,16 @@
                             var data = JSON.parse(xhr.responseText);
                             displayPosts(data);
                         } catch (e) {
-                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（データエラー）。</p>';
+                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                         }
-                    } else if (retryCount < 2) {
-                        setTimeout(function() { fetchPosts(timelineType, retryCount + 1); }, 1000);
                     } else {
-                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（サーバーエラー: ' + xhr.status + '）。</p>';
+                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                     }
                 }
             };
 
             xhr.onerror = function() {
-                if (retryCount < 2) {
-                    setTimeout(function() { fetchPosts(timelineType, retryCount + 1); }, 1000);
-                } else {
-                    document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（ネットワークエラー）。</p>';
-                }
+                document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
             };
 
             xhr.send();
@@ -104,27 +99,21 @@
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = '';
 
-            var proxyUrl = 'https://cors-0x10.online:4443/convert?url=';
             for (var i = 0; i < posts.length; i++) {
                 var post = posts[i];
                 var postElement = document.createElement('div');
                 postElement.className = 'post';
 
-                var username = post.account ? post.account.acct : 'unknown';
-                var content = post.content || '';
-                var avatarUrl = post.account ? post.account.avatar : '';
+                var username = post.account.acct;
+                var content = post.content;
+                var avatarUrl = convertToFallback(post.account.avatar);
+                var avatarImg = avatarUrl ? '<img src="' + avatarUrl + '" alt="@' + username + 'のアイコン" class="user-avatar" />' : '';
 
-                // WebP変換（アバター）
-                var avatarImg = avatarUrl
-                    ? '<img src="' + (avatarUrl.indexOf('.webp') !== -1 ? proxyUrl + encodeURIComponent(avatarUrl) : avatarUrl) + '" alt="@' + username + 'のアイコン" class="user-avatar" />'
-                    : '';
-
-                // WebP変換（添付画像）
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     for (var j = 0; j < post.media_attachments.length; j++) {
-                        var imgUrl = post.media_attachments[j].url;
-                        images += '<img src="' + (imgUrl.indexOf('.webp') !== -1 ? proxyUrl + encodeURIComponent(imgUrl) : imgUrl) + '" alt="画像" class="post-image" />';
+                        var mediaUrl = convertToFallback(post.media_attachments[j].url);
+                        images += '<img src="' + mediaUrl + '" alt="画像" class="post-image" />';
                     }
                 }
 
