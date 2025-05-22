@@ -86,7 +86,97 @@
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = '';
-            var proxyUrl = "https://cors-0x10.online:4443/img?url=";
+            <!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿一覧 - Simpdon クライアント</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="icon" href="./ico/simpdon.ico">
+</head>
+<body>
+    <div class="container">
+        <h1>投稿一覧</h1>
+
+        <div id="posts" class="posts"></div>
+
+        <div class="menu">
+            <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> |
+            <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a>
+        </div>
+
+        <div class="actions">
+            <a href="post.html" class="button">新しい投稿</a>
+            <a href="login.html" class="logout-link">ログアウト</a>
+        </div>
+    </div>
+
+    <script>
+        if (!String.prototype.trim) {
+            String.prototype.trim = function() {
+                return this.replace(/^\s+|\s+$/g, '');
+            };
+        }
+
+        function getCookie(name) {
+            var nameEq = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i].replace(/^\s+/, '');
+                if (c.indexOf(nameEq) === 0) return c.substring(nameEq.length, c.length);
+            }
+            return "";
+        }
+
+        function convertIfWebp(url) {
+            if (!url) return "";
+            if (url.endsWith(".webp")) {
+                return "https://cors-0x10.online/convert?url=" + encodeURIComponent(url);
+            }
+            return url;
+        }
+
+        var instanceUrl = getCookie('instanceUrl');
+        var accessToken = getCookie('accessToken');
+
+        if (!instanceUrl || !accessToken) {
+            window.location.href = 'login.html';
+        }
+
+        function fetchPosts(timelineType) {
+            var apiUrl = (timelineType === 'public') ? "/api/v1/timelines/public" : "/api/v1/timelines/home";
+            var proxyUrl = "https://cors-0x10.online:4443/";
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            displayPosts(data);
+                        } catch (e) {
+                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                        }
+                    } else {
+                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                    }
+                }
+            };
+
+            xhr.onerror = function() {
+                document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+            };
+
+            xhr.send();
+        }
+
+        function displayPosts(posts) {
+            var postsContainer = document.getElementById('posts');
+            postsContainer.innerHTML = '';
 
             for (var i = 0; i < posts.length; i++) {
                 var post = posts[i];
@@ -95,34 +185,29 @@
 
                 var username = post.account.acct;
                 var content = post.content;
-                var avatarUrl = post.account.avatar;
+                var avatarUrl = convertIfWebp(post.account.avatar);
 
-                // WebP変換（アバター）
-                var avatarImg = avatarUrl
-                    ? '<img src="' + (isWebP(avatarUrl) ? proxyUrl + encodeURIComponent(avatarUrl) : avatarUrl) + '" alt="@' + username + 'のアイコン" class="user-avatar" />'
-                    : '';
+                var avatarImg = avatarUrl ? '<img src="' + avatarUrl + '" alt="@' + username + 'のアイコン" class="user-avatar" />' : '';
 
-                // WebP変換（添付画像）
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     for (var j = 0; j < post.media_attachments.length; j++) {
-                        var imgUrl = post.media_attachments[j].url;
-                        images += '<img src="' + (isWebP(imgUrl) ? proxyUrl + encodeURIComponent(imgUrl) : imgUrl) + '" alt="画像" class="post-image" />';
+                        var imgUrl = convertIfWebp(post.media_attachments[j].url);
+                        images += '<img src="' + imgUrl + '" alt="画像" class="post-image" />';
                     }
                 }
 
-                // 絵文字対応
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                postElement.innerHTML =
-                    '<div class="post-header">' +
-                        avatarImg +
-                        '<h2>@' + username + '</h2>' +
-                    '</div>' +
-                    '<p>' + emojiContent + '</p>' +
-                    images;
+                postElement.innerHTML = ''
+                    + '<div class="post-header">'
+                    + avatarImg
+                    + '<h2>@' + username + '</h2>'
+                    + '</div>'
+                    + '<p>' + emojiContent + '</p>'
+                    + images;
 
                 postsContainer.appendChild(postElement);
             }
@@ -135,6 +220,10 @@
         window.onload = function() {
             setTimeline('home');
         };
+    </script>
+</body>
+</html>
+
     </script>
 </body>
 </html>
