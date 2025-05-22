@@ -50,7 +50,7 @@
         var instanceUrl = getCookie('instanceUrl');
         var accessToken = getCookie('accessToken');
 
-        // instanceUrlの末尾スラッシュを正規化
+        // instanceUrl正規化
         if (instanceUrl && !instanceUrl.endsWith('/')) {
             instanceUrl += '/';
         }
@@ -60,7 +60,7 @@
             return;
         }
 
-        function fetchPosts(timelineType) {
+        function fetchPosts(timelineType, retryCount = 0) {
             var apiUrl = "";
             if (timelineType === 'public') {
                 apiUrl = "api/v1/timelines/public";
@@ -76,6 +76,7 @@
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             xhr.setRequestHeader('User-Agent', 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 6_1_3 like Mac OS X; ja-jp) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B329 Safari/8536.25');
+            xhr.timeout = 10000; // iOS 6はtimeoutをサポートしない場合あり
 
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
@@ -93,7 +94,11 @@
             };
 
             xhr.onerror = function() {
-                document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（ネットワークエラー）。</p>';
+                if (retryCount < 2) {
+                    setTimeout(function() { fetchPosts(timelineType, retryCount + 1); }, 1000);
+                } else {
+                    document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（ネットワークエラー）。</p>';
+                }
             };
 
             xhr.send();
