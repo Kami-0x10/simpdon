@@ -25,7 +25,7 @@
     </div>
 
     <script>
-        // iOS 6互換性のポリフィル
+        // iOS 6ポリフィル
         if (!String.prototype.trim) {
             String.prototype.trim = function() {
                 return this.replace(/^\s+|\s+$/g, '');
@@ -50,24 +50,26 @@
         var instanceUrl = getCookie('instanceUrl');
         var accessToken = getCookie('accessToken');
 
+        // instanceUrlの末尾スラッシュを正規化
+        if (instanceUrl && !instanceUrl.endsWith('/')) {
+            instanceUrl += '/';
+        }
+
         if (!instanceUrl || !accessToken) {
-            console.log('[DEBUG] CookieにinstanceUrlまたはaccessTokenがありません');
             window.location.href = 'login.html';
-        } else {
-            console.log('[DEBUG] instanceUrl:', instanceUrl, 'accessToken:', accessToken);
+            return;
         }
 
         function fetchPosts(timelineType) {
             var apiUrl = "";
             if (timelineType === 'public') {
-                apiUrl = "/api/v1/timelines/public";
+                apiUrl = "api/v1/timelines/public";
             } else {
-                apiUrl = "/api/v1/timelines/home";
+                apiUrl = "api/v1/timelines/home";
             }
 
             var proxyUrl = "https://cors-0x10.online:4443/";
             var fullUrl = proxyUrl + instanceUrl + apiUrl;
-            console.log('[DEBUG] APIリクエスト:', fullUrl);
 
             var xhr = new XMLHttpRequest();
             xhr.open("GET", fullUrl, true);
@@ -77,25 +79,20 @@
 
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
-                    console.log('[DEBUG] HTTPステータス:', xhr.status, 'レスポンス:', xhr.responseText.substring(0, 200));
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            console.log('[DEBUG] JSONパース成功:', data.length, '件の投稿');
                             displayPosts(data);
                         } catch (e) {
-                            console.error('[DEBUG] JSONパースエラー:', e.message);
-                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（JSONエラー: ' + e.message + '）。</p>';
+                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（データエラー）。</p>';
                         }
                     } else {
-                        console.error('[DEBUG] HTTPエラー:', xhr.status, xhr.statusText);
-                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（HTTP ' + xhr.status + ': ' + xhr.statusText + '）。</p>';
+                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（サーバーエラー: ' + xhr.status + '）。</p>';
                     }
                 }
             };
 
             xhr.onerror = function() {
-                console.error('[DEBUG] ネットワークエラー');
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（ネットワークエラー）。</p>';
             };
 
@@ -105,19 +102,19 @@
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = '';
-            console.log('[DEBUG] 投稿表示開始:', posts.length, '件');
 
+            var proxyUrl = 'https://cors-0x10.online:4443/convert?url=';
             for (var i = 0; i < posts.length; i++) {
                 var post = posts[i];
                 var postElement = document.createElement('div');
                 postElement.className = 'post';
 
+                // Misskey/Mastodon対応
                 var username = post.account ? post.account.acct : post.user ? post.user.username : 'unknown';
                 var content = post.content || post.text || '';
                 var avatarUrl = post.account ? post.account.avatar : post.user ? post.user.avatar : '';
-                console.log('[DEBUG] 投稿:', username, 'アバター:', avatarUrl);
 
-                var proxyUrl = 'https://cors-0x10.online:4443/convert?url=';
+                // WebP変換
                 var avatarImg = avatarUrl
                     ? '<img src="' + (avatarUrl.endsWith('.webp') ? proxyUrl + encodeURIComponent(avatarUrl) : avatarUrl) + '" alt="@' + username + 'のアイコン" class="user-avatar" />'
                     : '';
@@ -127,7 +124,6 @@
                 if (attachments && attachments.length > 0) {
                     for (var j = 0; j < attachments.length; j++) {
                         var imgUrl = attachments[j].url;
-                        console.log('[DEBUG] 添付画像:', imgUrl);
                         images += '<img src="' + (imgUrl.endsWith('.webp') ? proxyUrl + encodeURIComponent(imgUrl) : imgUrl) + '" alt="画像" class="post-image" />';
                     }
                 }
@@ -149,7 +145,6 @@
         }
 
         function setTimeline(timelineType) {
-            console.log('[DEBUG] タイムライン切り替え:', timelineType);
             fetchPosts(timelineType);
         }
 
