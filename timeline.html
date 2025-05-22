@@ -48,24 +48,10 @@
             window.location.href = 'login.html';
         }
 
-        function supportsWebP() {
-            var elem = document.createElement('canvas');
-            if (!!(elem.getContext && elem.getContext('2d'))) {
-                return elem.toDataURL('image/webp').indexOf('data:image/webp') === 0;
-            }
-            return false;
-        }
-
-        var webpSupported = supportsWebP();
-
-        function convertToFallback(url) {
-            // クエリやアンカーを除去して拡張子を置き換え
-            return url.replace(/\.(webp|png|gif|jpeg|jpg)(\?.*|#.*)?$/i, '.jpg$2');
-        }
-
         function fetchPosts(timelineType) {
             var apiUrl = (timelineType === 'public') ? "/api/v1/timelines/public" : "/api/v1/timelines/home";
             var proxyUrl = "https://cors-0x10.online:4443/";
+
             var xhr = new XMLHttpRequest();
             xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
@@ -93,9 +79,14 @@
             xhr.send();
         }
 
+        function isWebP(url) {
+            return /\.webp(\?.*)?$/.test(url);
+        }
+
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = '';
+            var proxyUrl = "https://cors-0x10.online:4443/img?url=";
 
             for (var i = 0; i < posts.length; i++) {
                 var post = posts[i];
@@ -104,28 +95,34 @@
 
                 var username = post.account.acct;
                 var content = post.content;
-                var avatarUrl = convertToFallback(post.account.avatar);
-                var avatarImg = avatarUrl ? '<img src="' + avatarUrl + '" alt="@' + username + 'のアイコン" class="user-avatar" />' : '';
+                var avatarUrl = post.account.avatar;
 
+                // WebP変換（アバター）
+                var avatarImg = avatarUrl
+                    ? '<img src="' + (isWebP(avatarUrl) ? proxyUrl + encodeURIComponent(avatarUrl) : avatarUrl) + '" alt="@' + username + 'のアイコン" class="user-avatar" />'
+                    : '';
+
+                // WebP変換（添付画像）
                 var images = '';
                 if (post.media_attachments && post.media_attachments.length > 0) {
                     for (var j = 0; j < post.media_attachments.length; j++) {
-                        var mediaUrl = convertToFallback(post.media_attachments[j].url);
-                        images += '<img src="' + mediaUrl + '" alt="画像" class="post-image" />';
+                        var imgUrl = post.media_attachments[j].url;
+                        images += '<img src="' + (isWebP(imgUrl) ? proxyUrl + encodeURIComponent(imgUrl) : imgUrl) + '" alt="画像" class="post-image" />';
                     }
                 }
 
+                // 絵文字対応
                 var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (match, emoji) {
                     return '<span class="emoji">' + emoji + '</span>';
                 });
 
-                postElement.innerHTML = ''
-                    + '<div class="post-header">'
-                    + avatarImg
-                    + '<h2>@' + username + '</h2>'
-                    + '</div>'
-                    + '<p>' + emojiContent + '</p>'
-                    + images;
+                postElement.innerHTML =
+                    '<div class="post-header">' +
+                        avatarImg +
+                        '<h2>@' + username + '</h2>' +
+                    '</div>' +
+                    '<p>' + emojiContent + '</p>' +
+                    images;
 
                 postsContainer.appendChild(postElement);
             }
