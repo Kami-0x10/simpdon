@@ -93,15 +93,22 @@
                 var postElement = document.createElement('div');
                 postElement.className = 'post';
 
-                var username = post.account.acct;
-                var content = post.content;
-                var avatarUrl = post.account.avatar;
-                var avatarImg = avatarUrl ? '<img src="' + avatarUrl + '" alt="@' + username + 'のアイコン" class="user-avatar" />' : '';
+                var username = post.account ? post.account.acct : post.user.username || 'unknown'; // Misskey対応
+                var content = post.content || post.text || ''; // Misskeyはtextを使用
+                var avatarUrl = post.account ? post.account.avatar : post.user.avatar || ''; // Misskey対応
+
+                // WebP画像をプロキシ経由で変換
+                var proxyUrl = 'https://cors-0x10.online:4443/convert?url=';
+                var avatarImg = avatarUrl
+                    ? '<img src="' + (avatarUrl.endsWith('.webp') ? proxyUrl + encodeURIComponent(avatarUrl) : avatarUrl) + '" alt="@' + username + 'のアイコン" class="user-avatar" />'
+                    : '';
 
                 var images = '';
-                if (post.media_attachments && post.media_attachments.length > 0) {
-                    for (var j = 0; j < post.media_attachments.length; j++) {
-                        images += '<img src="' + post.media_attachments[j].url + '" alt="画像" class="post-image" />';
+                var attachments = post.media_attachments || post.files || []; // Misskeyはfilesを使用
+                if (attachments && attachments.length > 0) {
+                    for (var j = 0; j < attachments.length; j++) {
+                        var imgUrl = attachments[j].url;
+                        images += '<img src="' + (imgUrl.endsWith('.webp') ? proxyUrl + encodeURIComponent(imgUrl) : imgUrl) + '" alt="画像" class="post-image" />';
                     }
                 }
 
