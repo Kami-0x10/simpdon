@@ -59,10 +59,8 @@
         var webpSupported = supportsWebP();
 
         function convertToFallback(url) {
-            if (!webpSupported && url.endsWith('.webp')) {
-                return url.replace('.webp', '.jpg');
-            }
-            return url;
+            // クエリやアンカーを除去して拡張子を置き換え
+            return url.replace(/\.(webp|png|gif|jpeg|jpg)(\?.*|#.*)?$/i, '.jpg$2');
         }
 
         function fetchPosts(timelineType) {
