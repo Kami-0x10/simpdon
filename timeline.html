@@ -26,9 +26,9 @@
 
     <script>
         function getCookie(name) {
-            const ca = document.cookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                const c = ca[i].trim();
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i].replace(/^\s+/, '');
                 if (c.indexOf(name + "=") === 0) {
                     return c.substring((name + "=").length, c.length);
                 }
@@ -38,54 +38,47 @@
 
         function convertIfWebp(url) {
             if (!url) return "";
-            if (url.endsWith(".webp")) {
-                const encodedUrl = encodeURIComponent(url);
-                const convertUrl = "https://cors-0x10.online:4443/convert?url=" + encodedUrl;
-                console.log('[convertIfWebp] WebP変換URL:', convertUrl);
+            if (url.lastIndexOf(".webp") === url.length - 5) {
+                var encodedUrl = encodeURIComponent(url);
+                var convertUrl = "https://cors-0x10.online:4443/convert?url=" + encodedUrl;
                 return convertUrl;
             }
             return url;
         }
 
-        const instanceUrl = getCookie('instanceUrl');
-        const accessToken = getCookie('accessToken');
+        var instanceUrl = getCookie('instanceUrl');
+        var accessToken = getCookie('accessToken');
 
         if (!instanceUrl || !accessToken) {
-            console.warn('[auth] instanceUrl または accessToken が見つかりません。ログイン画面へ遷移します。');
             window.location.href = 'login.html';
         }
 
         function fetchPosts(timelineType) {
-            const apiUrl = (timelineType === 'public') ? "/api/v1/timelines/public" : "/api/v1/timelines/home";
-            const proxyUrl = "https://cors-0x10.online:4443/";
+            var apiUrl = (timelineType === 'public') ? "/api/v1/timelines/public" : "/api/v1/timelines/home";
+            var proxyUrl = "https://cors-0x10.online:4443/";
+            var fullUrl = proxyUrl + instanceUrl + apiUrl;
 
-            const fullUrl = proxyUrl + instanceUrl + apiUrl;
-            console.log('[fetchPosts] リクエストURL:', fullUrl);
-
-            const xhr = new XMLHttpRequest();
+            var xhr = new XMLHttpRequest();
             xhr.open("GET", fullUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
-                    console.log('[fetchPosts] レスポンスステータス:', xhr.status);
                     if (xhr.status === 200) {
                         try {
-                            const data = JSON.parse(xhr.responseText);
+                            var data = JSON.parse(xhr.responseText);
                             displayPosts(data);
                         } catch (e) {
-                            console.error('[fetchPosts] JSON解析エラー:', e);
                             document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                         }
                     } else {
-                        document.getElementById('posts').innerHTML = `<p>投稿の読み込みに失敗しました。ステータス: ${xhr.status}</p>`;
+                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。ステータス: ' + xhr.status + '</p>';
                     }
                 }
             };
 
             xhr.onerror = function () {
-                console.error('[fetchPosts] ネットワークエラー');
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
             };
 
@@ -93,35 +86,39 @@
         }
 
         function displayPosts(posts) {
-            const container = document.getElementById('posts');
+            var container = document.getElementById('posts');
             container.innerHTML = '';
 
-            posts.forEach(post => {
-                const username = post.account.acct;
-                const content = post.content;
-                const avatarUrl = convertIfWebp(post.account.avatar);
+            for (var i = 0; i < posts.length; i++) {
+                var post = posts[i];
+                var username = post.account.acct;
+                var content = post.content;
+                var avatarUrl = convertIfWebp(post.account.avatar);
 
-                const postDiv = document.createElement('div');
+                var postDiv = document.createElement('div');
                 postDiv.className = 'post';
 
-                const images = post.media_attachments.map(media => {
-                    const imgUrl = convertIfWebp(media.url);
-                    return `<img src="${imgUrl}" alt="画像" class="post-image">`;
-                }).join('');
+                var imagesHtml = '';
+                for (var j = 0; j < post.media_attachments.length; j++) {
+                    var media = post.media_attachments[j];
+                    var imgUrl = convertIfWebp(media.url);
+                    imagesHtml += '<img src="' + imgUrl + '" alt="画像" class="post-image">';
+                }
 
-                const emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, (_, emoji) => `<span class="emoji">${emoji}</span>`);
+                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (_, emoji) {
+                    return '<span class="emoji">' + emoji + '</span>';
+                });
 
-                postDiv.innerHTML = `
-                    <div class="post-header">
-                        <img src="${avatarUrl}" alt="@${username}のアイコン" class="user-avatar">
-                        <h2>@${username}</h2>
-                    </div>
-                    <p>${emojiContent}</p>
-                    ${images}
-                `;
+                postDiv.innerHTML =
+                    '<div class="post-header">' +
+                        '<img src="' + avatarUrl + '" alt="@' + username + 'のアイコン" class="user-avatar">' +
+                        '<h2>@' + username + '</h2>' +
+                    '</div>' +
+                    '<p>' + emojiContent + '</p>' +
+                    imagesHtml;
 
                 container.appendChild(postDiv);
-            });
+            }
         }
 
         function setTimeline(type) {
