@@ -38,13 +38,20 @@
 
         function convertIfWebp(url) {
             if (!url) return "";
-            return url.endsWith(".webp") ? "https://cors-0x10.online:4443/convert?url=" + encodeURIComponent(url) : url;
+            if (url.endsWith(".webp")) {
+                const encodedUrl = encodeURIComponent(url);
+                const convertUrl = "https://cors-0x10.online:4443/convert?url=" + encodedUrl;
+                console.log('[convertIfWebp] WebP変換URL:', convertUrl);
+                return convertUrl;
+            }
+            return url;
         }
 
         const instanceUrl = getCookie('instanceUrl');
         const accessToken = getCookie('accessToken');
 
         if (!instanceUrl || !accessToken) {
+            console.warn('[auth] instanceUrl または accessToken が見つかりません。ログイン画面へ遷移します。');
             window.location.href = 'login.html';
         }
 
@@ -52,27 +59,33 @@
             const apiUrl = (timelineType === 'public') ? "/api/v1/timelines/public" : "/api/v1/timelines/home";
             const proxyUrl = "https://cors-0x10.online:4443/";
 
+            const fullUrl = proxyUrl + instanceUrl + apiUrl;
+            console.log('[fetchPosts] リクエストURL:', fullUrl);
+
             const xhr = new XMLHttpRequest();
-            xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
+            xhr.open("GET", fullUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
+                    console.log('[fetchPosts] レスポンスステータス:', xhr.status);
                     if (xhr.status === 200) {
                         try {
                             const data = JSON.parse(xhr.responseText);
                             displayPosts(data);
                         } catch (e) {
+                            console.error('[fetchPosts] JSON解析エラー:', e);
                             document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
                         }
                     } else {
-                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                        document.getElementById('posts').innerHTML = `<p>投稿の読み込みに失敗しました。ステータス: ${xhr.status}</p>`;
                     }
                 }
             };
 
             xhr.onerror = function () {
+                console.error('[fetchPosts] ネットワークエラー');
                 document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
             };
 
@@ -115,9 +128,8 @@
             fetchPosts(type);
         }
 
-        window.onload = function () {
-            setTimeline('home');
-        };
+        // 初期表示はHome TL
+        setTimeline('home');
     </script>
 </body>
 </html>
