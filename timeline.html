@@ -38,7 +38,7 @@
 
         function convertIfWebp(url) {
             if (!url) return "";
-            return url.endsWith(".webp") ? "https://cors-0x10.online/convert?url=" + encodeURIComponent(url) : url;
+            return url.endsWith(".webp") ? "https://cors-0x10.online:4443/convert?url=" + encodeURIComponent(url) : url;
         }
 
         const instanceUrl = getCookie('instanceUrl');
