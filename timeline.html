@@ -25,9 +25,15 @@
     </div>
 
     <script>
+        // iOS 6互換性のポリフィル
         if (!String.prototype.trim) {
             String.prototype.trim = function() {
                 return this.replace(/^\s+|\s+$/g, '');
+            };
+        }
+        if (!String.prototype.endsWith) {
+            String.prototype.endsWith = function(suffix) {
+                return this.indexOf(suffix, this.length - suffix.length) !== -1;
             };
         }
 
@@ -45,7 +51,10 @@
         var accessToken = getCookie('accessToken');
 
         if (!instanceUrl || !accessToken) {
+            console.log('[DEBUG] CookieにinstanceUrlまたはaccessTokenがありません');
             window.location.href = 'login.html';
+        } else {
+            console.log('[DEBUG] instanceUrl:', instanceUrl, 'accessToken:', accessToken);
         }
 
         function fetchPosts(timelineType) {
@@ -57,28 +66,37 @@
             }
 
             var proxyUrl = "https://cors-0x10.online:4443/";
+            var fullUrl = proxyUrl + instanceUrl + apiUrl;
+            console.log('[DEBUG] APIリクエスト:', fullUrl);
+
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", proxyUrl + instanceUrl + apiUrl, true);
+            xhr.open("GET", fullUrl, true);
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader('User-Agent', 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 6_1_3 like Mac OS X; ja-jp) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B329 Safari/8536.25');
 
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
+                    console.log('[DEBUG] HTTPステータス:', xhr.status, 'レスポンス:', xhr.responseText.substring(0, 200));
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
+                            console.log('[DEBUG] JSONパース成功:', data.length, '件の投稿');
                             displayPosts(data);
                         } catch (e) {
-                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                            console.error('[DEBUG] JSONパースエラー:', e.message);
+                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（JSONエラー: ' + e.message + '）。</p>';
                         }
                     } else {
-                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                        console.error('[DEBUG] HTTPエラー:', xhr.status, xhr.statusText);
+                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（HTTP ' + xhr.status + ': ' + xhr.statusText + '）。</p>';
                     }
                 }
             };
 
             xhr.onerror = function() {
-                document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+                console.error('[DEBUG] ネットワークエラー');
+                document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました（ネットワークエラー）。</p>';
             };
 
             xhr.send();
@@ -87,27 +105,29 @@
         function displayPosts(posts) {
             var postsContainer = document.getElementById('posts');
             postsContainer.innerHTML = '';
+            console.log('[DEBUG] 投稿表示開始:', posts.length, '件');
 
             for (var i = 0; i < posts.length; i++) {
                 var post = posts[i];
                 var postElement = document.createElement('div');
                 postElement.className = 'post';
 
-                var username = post.account ? post.account.acct : post.user.username || 'unknown'; // Misskey対応
-                var content = post.content || post.text || ''; // Misskeyはtextを使用
-                var avatarUrl = post.account ? post.account.avatar : post.user.avatar || ''; // Misskey対応
+                var username = post.account ? post.account.acct : post.user ? post.user.username : 'unknown';
+                var content = post.content || post.text || '';
+                var avatarUrl = post.account ? post.account.avatar : post.user ? post.user.avatar : '';
+                console.log('[DEBUG] 投稿:', username, 'アバター:', avatarUrl);
 
-                // WebP画像をプロキシ経由で変換
                 var proxyUrl = 'https://cors-0x10.online:4443/convert?url=';
                 var avatarImg = avatarUrl
                     ? '<img src="' + (avatarUrl.endsWith('.webp') ? proxyUrl + encodeURIComponent(avatarUrl) : avatarUrl) + '" alt="@' + username + 'のアイコン" class="user-avatar" />'
                     : '';
 
                 var images = '';
-                var attachments = post.media_attachments || post.files || []; // Misskeyはfilesを使用
+                var attachments = post.media_attachments || post.files || [];
                 if (attachments && attachments.length > 0) {
                     for (var j = 0; j < attachments.length; j++) {
                         var imgUrl = attachments[j].url;
+                        console.log('[DEBUG] 添付画像:', imgUrl);
                         images += '<img src="' + (imgUrl.endsWith('.webp') ? proxyUrl + encodeURIComponent(imgUrl) : imgUrl) + '" alt="画像" class="post-image" />';
                     }
                 }
@@ -129,6 +149,7 @@
         }
 
         function setTimeline(timelineType) {
+            console.log('[DEBUG] タイムライン切り替え:', timelineType);
             fetchPosts(timelineType);
         }
 
