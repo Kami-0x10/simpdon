@@ -1,4 +1,4 @@
-/* 基本のスタイル */ 
+/* 基本のスタイル */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* よりモダンなフォントに */
     margin: 0;
@@ -100,36 +100,7 @@ a:hover {
     text-decoration: underline;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
-    /* 投稿カードに適切な余白を追加 */
-    .post {
-        margin-top: 15px; /* 上部の余白を少し広げる */
-        padding: 25px; /* 内側の余白を少し広げて快適に */
-    }
-}
-
-/* スマホ画面対応（480px以下） */
-@media (max-width: 480px) {
-    .container {
-        padding: 20px;  /* スマホ画面での余白調整 */
-        margin: 0 10px;
-    }
-    h1 {
-        font-size: 24px;
-    }
-    input[type="text"], textarea, .button {
-        font-size: 16px;
-    }
-
-    /* 投稿カードの余白を調整 */
-    .post {
-        margin-top: 20px; /* 上部の余白を広げる */
-        padding: 20px; /* 内側の余白を広げる */
-    }
-}
-
-/* 投稿のカード */
+/* 投稿カード */
 .post {
     background-color: #fff;
     border-radius: 12px; /* 角を丸めて柔らかい印象に */
@@ -185,4 +156,45 @@ a:hover {
 .container {
     height: auto; /* 高さをコンテンツに合わせて調整 */
     overflow: hidden; /* 見切れ防止 */
+}
+
+/* iPhone 4s（320px以下） */
+@media (max-width: 320px) {
+    .container {
+        padding: 15px;  /* より狭い画面に対応 */
+        margin: 0 5px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    input[type="text"], textarea, .button {
+        font-size: 14px;
+    }
+
+    .post {
+        padding: 15px; /* 投稿カードの余白も調整 */
+    }
+}
+
+/* スマホ画面対応（480px以下） */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;  /* スマホ画面での余白調整 */
+        margin: 0 10px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    input[type="text"], textarea, .button {
+        font-size: 16px;
+    }
+
+    .post {
+        margin-top: 20px; /* 上部の余白を広げる */
+        padding: 20px; /* 内側の余白を広げる */
+    }
 }
