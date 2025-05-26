@@ -5,8 +5,8 @@ body {
     padding: 0;
     background-color: #f4f4f9;
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
     height: 100vh;
     box-sizing: border-box;
 }
@@ -21,10 +21,6 @@ body {
     max-width: 450px;
     text-align: center;
     box-sizing: border-box;
-    margin: 0 20px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
 }
 
 /* 見出し部分 */
@@ -35,93 +31,63 @@ body {
 /* 見出し */
 h1 {
     font-size: 28px;
-    margin-bottom: 0; /* 見出しの下の余白をなくす */
+    margin-bottom: 25px;
     color: #333;
 }
 
-/* 投稿リスト部分 */
-.posts {
-    flex-grow: 1; /* 残りの領域を占める */
-    overflow-y: auto; /* 投稿が多くなった場合にスクロール */
-    padding-bottom: 20px; /* スクロール時に最後の投稿が隠れないように余白を追加 */
-}
-
-/* 投稿カード */
-.post {
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-    word-wrap: break-word;
-    overflow: hidden;
-}
-
-/* ユーザーアイコンのスタイル */
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;  /* 丸く表示 */
-    margin-right: 10px;  /* ユーザー名との間にスペース */
-    object-fit: cover;  /* 画像が枠に収まるように調整 */
-}
-
-/* 投稿画像のスタイル */
-.post img {
-    max-width: 100%;  /* 親要素に合わせて最大幅を100%に */
-    height: auto;     /* アスペクト比を保ちながら高さを自動調整 */
-    border-radius: 8px; /* 画像の角を丸めてカードとの一貫性を持たせる */
-    object-fit: cover;  /* 画像が枠に収まるように調整 */
-}
-
-/* 投稿のヘッダー (アイコンとユーザー名の部分) */
-.post-header {
+/* フォーム */
+.form {
     display: flex;
-    align-items: center;
-    margin-bottom: 15px;  /* ヘッダーと本文の間に少し余白 */
+    flex-direction: column;
+    gap: 20px; /* 入力フィールド間の間隔 */
 }
 
-/* 投稿のユーザー名 */
-.post-header h2 {
+/* ラベル */
+label {
     font-size: 16px;
-    color: #333;
-    margin: 0;
-    font-weight: bold;
-}
-
-/* 投稿の本文 */
-.post p { 
-    font-size: 14px; 
+    text-align: left;
     color: #555;
-    margin-top: 10px;
+    margin-bottom: 8px;
 }
 
-/* 親コンテナの高さ調整 */
-.container {
-    height: auto; /* 高さをコンテンツに合わせて調整 */
-    overflow: hidden; /* 見切れ防止 */
+/* 入力フィールド */
+input[type="text"], input[type="password"] {
+    padding: 14px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-top: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
 }
 
-/* ボタンのスタイル */
+/* 入力フィールドがフォーカスされた時 */
+input[type="text"]:focus, input[type="password"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* ボタン */
 .button {
-    background-color: #007bff; /* ボタンの背景色 */
-    color: white; /* 文字色 */
-    padding: 15px 0; /* ボタンの内側の余白 */
-    font-size: 18px; /* 文字サイズ */
-    border-radius: 8px; /* 角丸 */
-    text-decoration: none; /* 下線を消す */
-    display: inline-block; /* インラインブロックで横並びに */
-    text-align: center; /* 文字を中央揃え */
-    width: 100%; /* 幅を100%に設定 */
-    box-sizing: border-box; /* ボックスのサイズを調整 */
-    cursor: pointer; /* カーソルをポインタに変更 */
-    margin-top: 15px; /* 上部の余白 */
-    transition: background-color 0.3s ease; /* 背景色変更のアニメーション */
+    background-color: #007bff;
+    color: white;
+    padding: 15px 0;
+    font-size: 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
 }
 
 /* ボタンのホバー時 */
 .button:hover {
-    background-color: #0056b3; /* ホバー時の背景色 */
+    background-color: #0056b3;
 }
 
 /* リンク */
@@ -132,21 +98,6 @@ a {
 }
 
 a:hover {
-    text-decoration: underline;
-}
-
-/* 投稿リストメニュー */
-.menu {
-    margin-top: 20px;
-}
-
-.menu a {
-    font-size: 16px;
-    color: #007bff;
-    margin: 0 10px;
-}
-
-.menu a:hover {
     text-decoration: underline;
 }
 
@@ -167,9 +118,8 @@ a:hover {
         font-size: 16px;
     }
 
-    .post {
-        margin-top: 15px;
-        padding: 25px;
+    .form {
+        gap: 15px; /* フォーム要素の間隔を少し狭める */
     }
 }
 
@@ -188,8 +138,7 @@ a:hover {
         font-size: 14px;
     }
 
-    .post {
-        margin-top: 20px;
-        padding: 20px;
+    .form {
+        gap: 10px; /* フォーム要素の間隔をさらに狭める */
     }
 }
