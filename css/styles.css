@@ -1,12 +1,12 @@
 /* 基本のスタイル */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* よりモダンなフォントに */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f9;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* 上寄せで調整 */
     height: 100vh;
     box-sizing: border-box;
 }
@@ -14,14 +14,15 @@ body {
 /* コンテナ */
 .container {
     background-color: white;
-    padding: 30px; /* 内側の余白を少し増やして快適に */
-    border-radius: 12px; /* 丸みを増して現代的に */
+    padding: 30px;
+    border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 450px; /* 少し広めにして視覚的に余裕を持たせる */
+    max-width: 450px;
     text-align: center;
     box-sizing: border-box;
-    margin: 0 20px;  /* スマホ画面での余白調整 */
+    margin: 0 20px;
+    height: auto; /* 高さをコンテンツに合わせて調整 */
 }
 
 /* 見出し */
@@ -31,110 +32,23 @@ h1 {
     color: #333;
 }
 
-/* フォーム */
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* フォーム要素間の隙間を少し広く */
-}
-
-/* ラベル */
-label {
-    font-size: 16px;
-    text-align: left;
-    color: #555;
-    margin-bottom: 8px;
-}
-
-/* 入力フィールド */
-input[type="text"], textarea {
-    padding: 14px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 8px; /* 入力フィールドの角を丸めて、柔らかい印象に */
-    margin-top: 5px;
-    width: 100%;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease; /* フォーカス時の色変更 */
-}
-
-input[type="text"]:focus, textarea:focus {
-    border-color: #007bff; /* フォーカス時の青色強調 */
-    outline: none;
-}
-
-/* テキストエリア */
-textarea {
-    height: 120px; /* もう少し高くして、快適に */
-}
-
-/* ボタン */
-.button {
-    background-color: #007bff;
-    color: white;
-    padding: 15px 0;
-    font-size: 18px;
-    border-radius: 8px;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-    width: 100%;
-    box-sizing: border-box;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: background-color 0.3s ease;
-}
-
-.button:hover {
-    background-color: #0056b3;
-}
-
-/* リンク */
-a {
-    text-decoration: none;
-    color: #007bff;
-    font-size: 14px;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
 /* 投稿カード */
 .post {
     background-color: #fff;
-    border-radius: 12px; /* 角を丸めて柔らかい印象に */
+    border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin-bottom: 20px;
     word-wrap: break-word;
     overflow: hidden;
-    margin-top: 10px; /* 上部に少し余白を追加 */
-}
-
-/* ユーザーアイコンのスタイル */
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;  /* 丸く表示 */
-    margin-right: 10px;  /* ユーザー名との間にスペース */
-    object-fit: cover;  /* 画像が枠に収まるように調整 */
-    position: relative;
-}
-
-/* 投稿画像のスタイル */
-.post img {
-    max-width: 100%;  /* 親要素に合わせて最大幅を100%に */
-    height: auto;     /* アスペクト比を保ちながら高さを自動調整 */
-    border-radius: 8px; /* 画像の角を丸めてカードとの一貫性を持たせる */
-    object-fit: cover;  /* 画像が枠に収まるように調整 */
+    margin-top: 10px;
 }
 
 /* 投稿のヘッダー (アイコンとユーザー名の部分) */
 .post-header {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;  /* ヘッダーと本文の間に少し余白 */
+    margin-bottom: 15px;
 }
 
 /* 投稿のユーザー名 */
@@ -152,49 +66,65 @@ a:hover {
     margin-top: 10px;
 }
 
-/* 親コンテナの高さ調整 */
-.container {
-    height: auto; /* 高さをコンテンツに合わせて調整 */
-    overflow: hidden; /* 見切れ防止 */
-}
-
-/* iPhone 4s（320px以下） */
-@media (max-width: 320px) {
-    .container {
-        padding: 15px;  /* より狭い画面に対応 */
-        margin: 0 5px;
-    }
-
-    h1 {
-        font-size: 20px;
-    }
-
-    input[type="text"], textarea, .button {
-        font-size: 14px;
-    }
-
-    .post {
-        padding: 15px; /* 投稿カードの余白も調整 */
-    }
-}
-
-/* スマホ画面対応（480px以下） */
+/* iPhone 4s対応のメディアクエリ */
 @media (max-width: 480px) {
+
     .container {
-        padding: 20px;  /* スマホ画面での余白調整 */
+        padding: 15px; /* 余白を少し減らす */
         margin: 0 10px;
     }
 
     h1 {
         font-size: 24px;
-    }
-
-    input[type="text"], textarea, .button {
-        font-size: 16px;
+        margin-bottom: 15px; /* 見出しの下の余白を減らす */
     }
 
     .post {
-        margin-top: 20px; /* 上部の余白を広げる */
-        padding: 20px; /* 内側の余白を広げる */
+        margin-top: 10px;
+        padding: 15px; /* 投稿カード内の余白を減らす */
     }
+
+    /* 投稿画像のスタイル */
+    .post img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+}
+
+/* 最近のスマホ向けの調整 */
+@media (min-width: 481px) and (max-width: 768px) {
+    .container {
+        padding: 25px;
+        margin: 0 20px;
+    }
+
+    h1 {
+        font-size: 26px;
+        margin-bottom: 20px;
+    }
+
+    .post {
+        margin-top: 15px;
+        padding: 20px;
+    }
+}
+
+/* ユーザーアイコンのスタイル */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    position: relative;
+}
+
+/* 投稿画像のスタイル */
+.post img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
 }
