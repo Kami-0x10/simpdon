@@ -1,132 +1,136 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>投稿一覧 - Simpdon クライアント</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/styles.css">
-    <link rel="icon" href="./ico/simpdon.ico">
-</head>
-<body>
-    <div class="container">
-        <h1>投稿一覧</h1>
-
-        <div id="posts" class="posts"></div>
-
-        <div class="menu">
-            <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> |
-            <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a>
+<html lang="ja"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <title>投稿一覧 - Simpdon クライアント</title> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="stylesheet" href="./css/styles.css"> 
+    <link rel="icon" href="./ico/simpdon.ico"> 
+</head> 
+<body> 
+    <div class="container"> 
+        <!-- 見出し部分 -->
+        <div class="header">
+            <h1>投稿一覧</h1>
         </div>
 
-        <div class="actions">
-            <a href="post.html" class="button">新しい投稿</a>
-            <a href="login.html" class="logout-link">ログアウト</a>
-        </div>
-    </div>
+        <!-- 投稿リスト部分 -->
+        <div id="posts" class="posts"></div> 
 
-    <script>
-        function getCookie(name) {
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i].replace(/^\s+/, '');
-                if (c.indexOf(name + "=") === 0) {
-                    return c.substring((name + "=").length, c.length);
-                }
-            }
-            return "";
-        }
+        <div class="menu"> 
+            <a href="javascript:void(0);" onclick="setTimeline('home')">Home TL</a> | 
+            <a href="javascript:void(0);" onclick="setTimeline('public')">Public TL</a> 
+        </div> 
 
-        function convertIfWebp(url) {
-            if (!url) return "";
-            if (url.lastIndexOf(".webp") === url.length - 5) {
-                var encodedUrl = encodeURIComponent(url);
-                var convertUrl = "https://cors-0x10.online:4443/convert?url=" + encodedUrl;
-                return convertUrl;
-            }
-            return url;
-        }
+        <div class="actions"> 
+            <a href="post.html" class="button">新しい投稿</a> 
+            <a href="login.html" class="logout-link">ログアウト</a> 
+        </div> 
+    </div> 
 
-        var instanceUrl = getCookie('instanceUrl');
-        var accessToken = getCookie('accessToken');
+    <script> 
+        function getCookie(name) { 
+            var ca = document.cookie.split(';'); 
+            for (var i = 0; i < ca.length; i++) { 
+                var c = ca[i].replace(/^\s+/, ''); 
+                if (c.indexOf(name + "=") === 0) { 
+                    return c.substring((name + "=").length, c.length); 
+                } 
+            } 
+            return ""; 
+        } 
 
-        if (!instanceUrl || !accessToken) {
-            window.location.href = 'login.html';
-        }
+        function convertIfWebp(url) { 
+            if (!url) return ""; 
+            if (url.lastIndexOf(".webp") === url.length - 5) { 
+                var encodedUrl = encodeURIComponent(url); 
+                var convertUrl = "https://cors-0x10.online:4443/convert?url=" + encodedUrl; 
+                return convertUrl; 
+            } 
+            return url; 
+        } 
 
-        function fetchPosts(timelineType) {
-            var apiUrl = (timelineType === 'public') ? "/api/v1/timelines/public" : "/api/v1/timelines/home";
-            var proxyUrl = "https://cors-0x10.online:4443/";
-            var fullUrl = proxyUrl + instanceUrl + apiUrl;
+        var instanceUrl = getCookie('instanceUrl'); 
+        var accessToken = getCookie('accessToken'); 
 
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", fullUrl, true);
-            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        if (!instanceUrl || !accessToken) { 
+            window.location.href = 'login.html'; 
+        } 
 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            displayPosts(data);
-                        } catch (e) {
-                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-                        }
-                    } else {
-                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。ステータス: ' + xhr.status + '</p>';
-                    }
-                }
-            };
+        function fetchPosts(timelineType) { 
+            var apiUrl = (timelineType === 'public') ? "/api/v1/timelines/public" : "/api/v1/timelines/home"; 
+            var proxyUrl = "https://cors-0x10.online:4443/"; 
+            var fullUrl = proxyUrl + instanceUrl + apiUrl; 
 
-            xhr.onerror = function () {
-                document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
-            };
+            var xhr = new XMLHttpRequest(); 
+            xhr.open("GET", fullUrl, true); 
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken); 
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); 
 
-            xhr.send();
-        }
+            xhr.onreadystatechange = function () { 
+                if (xhr.readyState === 4) { 
+                    if (xhr.status === 200) { 
+                        try { 
+                            var data = JSON.parse(xhr.responseText); 
+                            displayPosts(data); 
+                        } catch (e) { 
+                            document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>'; 
+                        } 
+                    } else { 
+                        document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。ステータス: ' + xhr.status + '</p>'; 
+                    } 
+                } 
+            }; 
 
-        function displayPosts(posts) {
-            var container = document.getElementById('posts');
-            container.innerHTML = '';
+            xhr.onerror = function () { 
+                document.getElementById('posts').innerHTML = '<p>投稿の読み込みに失敗しました。</p>'; 
+            }; 
 
-            for (var i = 0; i < posts.length; i++) {
-                var post = posts[i];
-                var username = post.account.acct;
-                var content = post.content;
-                var avatarUrl = convertIfWebp(post.account.avatar);
+            xhr.send(); 
+        } 
 
-                var postDiv = document.createElement('div');
-                postDiv.className = 'post';
+        function displayPosts(posts) { 
+            var container = document.getElementById('posts'); 
+            container.innerHTML = ''; 
 
-                var imagesHtml = '';
-                for (var j = 0; j < post.media_attachments.length; j++) {
-                    var media = post.media_attachments[j];
-                    var imgUrl = convertIfWebp(media.url);
-                    imagesHtml += '<img src="' + imgUrl + '" alt="画像" class="post-image">';
-                }
+            for (var i = 0; i < posts.length; i++) { 
+                var post = posts[i]; 
+                var username = post.account.acct; 
+                var content = post.content; 
+                var avatarUrl = convertIfWebp(post.account.avatar); 
 
-                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (_, emoji) {
-                    return '<span class="emoji">' + emoji + '</span>';
-                });
+                var postDiv = document.createElement('div'); 
+                postDiv.className = 'post'; 
 
-                postDiv.innerHTML =
-                    '<div class="post-header">' +
-                        '<img src="' + avatarUrl + '" alt="@' + username + 'のアイコン" class="user-avatar">' +
-                        '<h2>@' + username + '</h2>' +
-                    '</div>' +
-                    '<p>' + emojiContent + '</p>' +
-                    imagesHtml;
+                var imagesHtml = ''; 
+                for (var j = 0; j < post.media_attachments.length; j++) { 
+                    var media = post.media_attachments[j]; 
+                    var imgUrl = convertIfWebp(media.url); 
+                    imagesHtml += '<img src="' + imgUrl + '" alt="画像" class="post-image">'; 
+                } 
 
-                container.appendChild(postDiv);
-            }
-        }
+                var emojiContent = content.replace(/:([a-zA-Z0-9_+]+):/g, function (_, emoji) { 
+                    return '<span class="emoji">' + emoji + '</span>'; 
+                }); 
 
-        function setTimeline(type) {
-            fetchPosts(type);
-        }
+                postDiv.innerHTML = 
+                    '<div class="post-header">' + 
+                        '<img src="' + avatarUrl + '" alt="@' + username + 'のアイコン" class="user-avatar">' + 
+                        '<h2>@' + username + '</h2>' + 
+                    '</div>' + 
+                    '<p>' + emojiContent + '</p>' + 
+                    imagesHtml; 
 
-        // 初期表示はHome TL
-        setTimeline('home');
-    </script>
-</body>
+                container.appendChild(postDiv); 
+            } 
+        } 
+
+        function setTimeline(type) { 
+            fetchPosts(type); 
+        } 
+
+        // 初期表示はHome TL 
+        setTimeline('home'); 
+    </script> 
+</body> 
 </html>
