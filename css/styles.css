@@ -1,6 +1,6 @@
 /* 基本のスタイル */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* よりモダンなフォントに */
     margin: 0;
     padding: 0;
     background-color: #f4f4f9;
@@ -14,18 +14,14 @@ body {
 /* コンテナ */
 .container {
     background-color: white;
-    padding: 30px;
-    border-radius: 12px;
+    padding: 30px; /* 内側の余白を少し増やして快適に */
+    border-radius: 12px; /* 丸みを増して現代的に */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 450px;
+    max-width: 450px; /* 少し広めにして視覚的に余裕を持たせる */
     text-align: center;
     box-sizing: border-box;
-}
-
-/* 見出し部分 */
-.header {
-    margin-bottom: 20px;
+    margin: 0 20px;  /* スマホ画面での余白調整 */
 }
 
 /* 見出し */
@@ -39,7 +35,7 @@ h1 {
 .form {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* 入力フィールド間の間隔 */
+    gap: 20px; /* フォーム要素間の隙間を少し広く */
 }
 
 /* ラベル */
@@ -51,21 +47,26 @@ label {
 }
 
 /* 入力フィールド */
-input[type="text"], input[type="password"] {
+input[type="text"], input[type="password"], textarea {
     padding: 14px;
     font-size: 16px;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 8px; /* 入力フィールドの角を丸めて、柔らかい印象に */
     margin-top: 5px;
     width: 100%;
     box-sizing: border-box;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease; /* フォーカス時の色変更 */
 }
 
 /* 入力フィールドがフォーカスされた時 */
-input[type="text"]:focus, input[type="password"]:focus {
-    border-color: #007bff;
+input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+    border-color: #007bff; /* フォーカス時の青色強調 */
     outline: none;
+}
+
+/* テキストエリア */
+textarea {
+    height: 120px; /* もう少し高くして、快適に */
 }
 
 /* ボタン */
@@ -102,11 +103,24 @@ a:hover {
 }
 
 /* レスポンシブ対応 */
-
-/* スマホ画面対応（768px以下） */
 @media (max-width: 768px) {
+    /* 投稿カードに適切な余白を追加 */
+    .post {
+        margin-top: 15px; /* 上部の余白を少し広げる */
+        padding: 25px; /* 内側の余白を少し広げて快適に */
+    }
+
+    /* ログインフォームの余白調整 */
     .container {
-        padding: 20px;
+        padding: 20px;  /* スマホ画面での余白調整 */
+        margin: 0 10px;
+    }
+}
+
+/* スマホ画面対応（480px以下） */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;  /* スマホ画面での余白調整 */
         margin: 0 10px;
     }
 
@@ -114,31 +128,71 @@ a:hover {
         font-size: 24px;
     }
 
-    .button {
+    input[type="text"], input[type="password"], textarea, .button {
         font-size: 16px;
     }
 
-    .form {
-        gap: 15px; /* フォーム要素の間隔を少し狭める */
+    /* 投稿カードの余白を調整 */
+    .post {
+        margin-top: 20px; /* 上部の余白を広げる */
+        padding: 20px; /* 内側の余白を広げる */
     }
 }
 
-/* スマホ画面対応（480px以下） */
-@media (max-width: 480px) {
-    .container {
-        padding: 20px;
-        margin: 0 10px;
-    }
+/* 投稿のカード */
+.post {
+    background-color: #fff;
+    border-radius: 12px; /* 角を丸めて柔らかい印象に */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    word-wrap: break-word;
+    overflow: hidden;
+    margin-top: 10px; /* 上部に少し余白を追加 */
+}
 
-    h1 {
-        font-size: 20px;
-    }
+/* ユーザーアイコンのスタイル */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;  /* 丸く表示 */
+    margin-right: 10px;  /* ユーザー名との間にスペース */
+    object-fit: cover;  /* 画像が枠に収まるように調整 */
+    position: relative;
+}
 
-    .button {
-        font-size: 14px;
-    }
+/* 投稿画像のスタイル */
+.post img {
+    max-width: 100%;  /* 親要素に合わせて最大幅を100%に */
+    height: auto;     /* アスペクト比を保ちながら高さを自動調整 */
+    border-radius: 8px; /* 画像の角を丸めてカードとの一貫性を持たせる */
+    object-fit: cover;  /* 画像が枠に収まるように調整 */
+}
 
-    .form {
-        gap: 10px; /* フォーム要素の間隔をさらに狭める */
-    }
+/* 投稿のヘッダー (アイコンとユーザー名の部分) */
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;  /* ヘッダーと本文の間に少し余白 */
+}
+
+/* 投稿のユーザー名 */
+.post-header h2 {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+    font-weight: bold;
+}
+
+/* 投稿の本文 */
+.post p {
+    font-size: 14px;
+    color: #555;
+    margin-top: 10px;
+}
+
+/* 親コンテナの高さ調整 */
+.container {
+    height: auto; /* 高さをコンテンツに合わせて調整 */
+    overflow: hidden; /* 見切れ防止 */
 }
