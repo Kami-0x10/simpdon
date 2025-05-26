@@ -57,12 +57,28 @@ h1 {
     overflow: hidden;
 }
 
+/* ユーザーアイコンのスタイル */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;  /* 丸く表示 */
+    margin-right: 10px;  /* ユーザー名との間にスペース */
+    object-fit: cover;  /* 画像が枠に収まるように調整 */
+}
+
+/* 投稿画像のスタイル */
+.post img {
+    max-width: 100%;  /* 親要素に合わせて最大幅を100%に */
+    height: auto;     /* アスペクト比を保ちながら高さを自動調整 */
+    border-radius: 8px; /* 画像の角を丸めてカードとの一貫性を持たせる */
+    object-fit: cover;  /* 画像が枠に収まるように調整 */
+}
 
 /* 投稿のヘッダー (アイコンとユーザー名の部分) */
 .post-header {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 15px;  /* ヘッダーと本文の間に少し余白 */
 }
 
 /* 投稿のユーザー名 */
@@ -74,71 +90,106 @@ h1 {
 }
 
 /* 投稿の本文 */
-.post p {
-    font-size: 14px;
+.post p { 
+    font-size: 14px; 
     color: #555;
     margin-top: 10px;
 }
 
-/* iPhone 4s対応のメディアクエリ */
-@media (max-width: 480px) {
+/* 親コンテナの高さ調整 */
+.container {
+    height: auto; /* 高さをコンテンツに合わせて調整 */
+    overflow: hidden; /* 見切れ防止 */
+}
 
+/* ボタンのスタイル */
+.button {
+    background-color: #007bff; /* ボタンの背景色 */
+    color: white; /* 文字色 */
+    padding: 15px 0; /* ボタンの内側の余白 */
+    font-size: 18px; /* 文字サイズ */
+    border-radius: 8px; /* 角丸 */
+    text-decoration: none; /* 下線を消す */
+    display: inline-block; /* インラインブロックで横並びに */
+    text-align: center; /* 文字を中央揃え */
+    width: 100%; /* 幅を100%に設定 */
+    box-sizing: border-box; /* ボックスのサイズを調整 */
+    cursor: pointer; /* カーソルをポインタに変更 */
+    margin-top: 15px; /* 上部の余白 */
+    transition: background-color 0.3s ease; /* 背景色変更のアニメーション */
+}
+
+/* ボタンのホバー時 */
+.button:hover {
+    background-color: #0056b3; /* ホバー時の背景色 */
+}
+
+/* リンク */
+a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 14px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* 投稿リストメニュー */
+.menu {
+    margin-top: 20px;
+}
+
+.menu a {
+    font-size: 16px;
+    color: #007bff;
+    margin: 0 10px;
+}
+
+.menu a:hover {
+    text-decoration: underline;
+}
+
+/* レスポンシブ対応 */
+
+/* スマホ画面対応（768px以下） */
+@media (max-width: 768px) {
     .container {
-        padding: 15px; /* 余白を少し減らす */
+        padding: 20px;
         margin: 0 10px;
     }
 
     h1 {
         font-size: 24px;
-        margin-bottom: 15px; /* 見出しの下の余白を減らす */
     }
 
-    .post {
-        margin-top: 10px;
-        padding: 15px; /* 投稿カード内の余白を減らす */
-    }
-
-    /* 投稿画像のスタイル */
-    .post img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 8px;
-        object-fit: cover;
-    }
-}
-
-/* 最近のスマホ向けの調整 */
-@media (min-width: 481px) and (max-width: 768px) {
-    .container {
-        padding: 25px;
-        margin: 0 20px;
-    }
-
-    h1 {
-        font-size: 26px;
-        margin-bottom: 20px;
+    .button {
+        font-size: 16px;
     }
 
     .post {
         margin-top: 15px;
-        padding: 20px;
+        padding: 25px;
     }
 }
 
-/* ユーザーアイコンのスタイル */
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-    object-fit: cover;
-    position: relative;
-}
+/* スマホ画面対応（480px以下） */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+        margin: 0 10px;
+    }
 
-/* 投稿画像のスタイル */
-.post img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    object-fit: cover;
+    h1 {
+        font-size: 20px;
+    }
+
+    .button {
+        font-size: 14px;
+    }
+
+    .post {
+        margin-top: 20px;
+        padding: 20px;
+    }
 }
