@@ -139,16 +139,23 @@ a:hover {
     }
 }
 
-/* 投稿のカード */
-.post {
-    background-color: #fff;
-    border-radius: 12px; /* 角を丸めて柔らかい印象に */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-    word-wrap: break-word;
-    overflow: hidden;
-    margin-top: 10px; /* 上部に少し余白を追加 */
+/* 投稿のヘッダー (アイコンとユーザー名の部分) */
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;  /* ヘッダーと本文の間に少し余白 */
+    overflow: hidden;     /* 子要素がはみ出さないようにする */
+}
+
+/* 投稿のユーザー名 */
+.post-header h2 {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+    font-weight: bold;
+    white-space: nowrap; /* ユーザー名が長くても改行しないように */
+    text-overflow: ellipsis; /* ユーザー名が長すぎる場合、...を表示 */
+    overflow: hidden;     /* はみ出したテキストを隠す */
 }
 
 /* ユーザーアイコンのスタイル */
@@ -161,27 +168,25 @@ a:hover {
     position: relative;
 }
 
+/* 投稿カードの余白調整 */
+.post {
+    background-color: #fff;
+    border-radius: 12px; /* 角を丸めて柔らかい印象に */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    word-wrap: break-word;
+    overflow: hidden; /* コンテンツがはみ出さないようにする */
+    margin-top: 10px; /* 上部に少し余白を追加 */
+}
+
+
 /* 投稿画像のスタイル */
 .post img {
     max-width: 100%;  /* 親要素に合わせて最大幅を100%に */
     height: auto;     /* アスペクト比を保ちながら高さを自動調整 */
     border-radius: 8px; /* 画像の角を丸めてカードとの一貫性を持たせる */
     object-fit: cover;  /* 画像が枠に収まるように調整 */
-}
-
-/* 投稿のヘッダー (アイコンとユーザー名の部分) */
-.post-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;  /* ヘッダーと本文の間に少し余白 */
-}
-
-/* 投稿のユーザー名 */
-.post-header h2 {
-    font-size: 16px;
-    color: #333;
-    margin: 0;
-    font-weight: bold;
 }
 
 /* 投稿の本文 */
