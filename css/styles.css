@@ -29,7 +29,7 @@ h1 {
     font-size: 28px;
     margin-bottom: 25px;
     color: #333;
-    text-align: left; /* 見出しを左揃え */
+    text-align: center; /* 見出しを中央揃え */
 }
 
 /* 投稿のカード */
